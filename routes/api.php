@@ -2,27 +2,43 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;     
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PembayaranController;
 
-// ini buat public
-// url api/register
+
 Route::post('/register', [AuthController::class, 'register']);
-// url api/login
+
 Route::post('/login', [AuthController::class, 'login']);
-// ini buat private
+
+// prive route butuh toke barerr
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    // Logout url api/logout
+    // Logout url api/logout -> buthh token aktif
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // crud Pembayaran 
-    // url /api/pembayaran
-    Route::apiResource('pembayaran', PembayaranController::class);
-
-    // 
+    // route yang bisa di akses semua user
+    // index (GET /api/pembayaran)
+    // show (GET /api/pembayaran/{id})
+    // store (POST /api/pembayaran)
+    Route::resource('pembayaran', PembayaranController::class)->only([
+        'index', 'show', 'store'
+    ]);
+    
+    // 2. Route yang HANYA bisa diakses oleh ADMIN (Update & Delete)
+    Route::middleware('role:admin')->group(function () {
+        
+        // ini update pembayarann Admin Only
+        Route::match(['put', 'patch'], '/pembayaran/{pembayaran}', [PembayaranController::class, 'update']);
+        
+        // delete pembayaran Admin Only
+        Route::delete('/pembayaran/{pembayaran}', [PembayaranController::class, 'destroy']);
+    });
+    
+    // unutk check yang sednag login
     Route::get('/user', function (Request $request) {
         return $request->user();
+        });
+});
     });
 
 });
