@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('plat_nomor')->unique();
-            $table->string('merk');
             $table->string('tipe');
             $table->integer('tahun_produksi');
             $table->string('warna');

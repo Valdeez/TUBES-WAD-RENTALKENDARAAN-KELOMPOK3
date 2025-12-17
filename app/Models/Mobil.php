@@ -18,4 +18,8 @@ class Mobil extends Model
         'status',
         'gambar',
     ];
+    public function peminjamans()
+    {
+        return $this->morphMany(Peminjaman::class, 'kendaraan');
+    }   
 }

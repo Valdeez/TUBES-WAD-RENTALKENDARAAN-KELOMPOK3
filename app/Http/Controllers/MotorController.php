@@ -8,7 +8,7 @@ use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class MotorController extends Controller
+class MotorController
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,6 @@ class MotorController extends Controller
         $validator = Validator::make($request->all(), [
             'nama'              => 'required',
             'plat_nomor'        => 'required|unique:motors',
-            'merk'              => 'required',
             'tipe'              => 'required',
             'tahun_produksi'    => 'required|integer',
             'warna'             => 'required',
@@ -40,12 +39,7 @@ class MotorController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $gambarPath = null;
-        if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $gambar->storeAs('public/motors', $gambar->hashName());
-            $gambarPath = $gambar->hashName();
-        }
+        $imagePath = $request->file('gambar')->store('motors', 'public');
 
         // 3. Simpan ke Database
         $motor = Motor::create([
@@ -56,7 +50,7 @@ class MotorController extends Controller
             'warna'             => $request->warna,
             'harga_sewa'        => $request->harga_sewa,
             'status'            => $request->status,
-            'gambar'            => $gambarPath,
+            'gambar'            => $imagePath,
         ]);
         return new MotorResource(true, 'Data Motor Berhasil Ditambahkan!', $motor);
     }
