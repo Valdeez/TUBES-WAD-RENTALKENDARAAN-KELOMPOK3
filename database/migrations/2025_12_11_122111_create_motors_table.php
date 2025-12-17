@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('motors', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->string('nama');
             $table->string('plat_nomor')->unique();
             $table->string('merk');
             $table->string('tipe');
