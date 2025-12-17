@@ -3,9 +3,8 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use  App\Models\Peminjaman;
 
-class Motor extends Model
+class Mobil extends Model
 {
     use HasFactory;
 
@@ -20,8 +19,7 @@ class Motor extends Model
         'gambar',
     ];
     public function peminjamans()
-    {  
+    {
         return $this->morphMany(Peminjaman::class, 'kendaraan');
-    }
-
+    }   
 }

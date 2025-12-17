@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Motor;
+use App\Models\Mobil;
 use Illuminate\Http\Request;
-use App\Http\Resources\MotorResource; 
+use App\Http\Resources\MobilResource; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 
-class MotorController
+class MobilController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $motors = Motor::latest()->get();
-        return new MotorResource(true, 'List Data Motor', $motors);
+        $mobils = Mobil::latest()->get();
+        return new MobilResource(true, 'List Data Mobil', $mobils);
     }
 
     /**
@@ -26,23 +27,23 @@ class MotorController
     {
         $validator = Validator::make($request->all(), [
             'nama'              => 'required',
-            'plat_nomor'        => 'required|unique:motors',
+            'plat_nomor'        => 'required|unique:mobils',
             'tipe'              => 'required',
             'tahun_produksi'    => 'required|integer',
             'warna'             => 'required',
             'harga_sewa'        => 'required|numeric',
             'status'            => 'required|in:tersedia,disewa,maintenance',
-            'gambar'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar'            => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 422);
         }
 
-        $imagePath = $request->file('gambar')->store('motors', 'public');
+        $imagePath = $request->file('gambar')->store('mobils', 'public');
 
         // 3. Simpan ke Database
-        $motor = Motor::create([
+        $mobil = Mobil::create([
             'nama'              => $request->nama,
             'plat_nomor'        => $request->plat_nomor,
             'tipe'              => $request->tipe,
@@ -52,7 +53,7 @@ class MotorController
             'status'            => $request->status,
             'gambar'            => $imagePath,
         ]);
-        return new MotorResource(true, 'Data Motor Berhasil Ditambahkan!', $motor);
+        return new MobilResource(true, 'Data Mobil Berhasil Ditambahkan!', $mobil);
     }
 
     /**
@@ -60,12 +61,12 @@ class MotorController
      */
     public function show(string $id)
     {
-        $motor = Motor::find($id);
+        $mobil = Mobil::find($id);
 
-        if(!$motor){
-            return response()->json(['message' => 'Data Motor tidak ditemukan!'], 404);
+        if(!$mobil){
+            return response()->json(['message' => 'Data Mobil tidak ditemukan!'], 404);
         }
-        return new MotorResource(true, 'Detail Data Motor', $motor);
+        return new MobilResource(true, 'Detail Data Mobil', $mobil);
     }
 
     /**
@@ -73,14 +74,14 @@ class MotorController
      */
     public function update(Request $request, string $id)
     {
-        $motor = Motor::find($id);
+        $mobil = Mobil::find($id);
 
-        if(!$motor){
-            return response()->json(['message' => 'Data Motor tidak ditemukan'], 404);
+        if(!$mobil){
+            return response()->json(['message' => 'Data Mobil tidak ditemukan'], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'plat_nomor'    => 'unique:motors,plat_nomor',
+            'plat_nomor'    => 'unique:mobils,plat_nomor',
             'tahun_produksi' => 'integer',
             'harga_sewa'    => 'numeric',
             'status'        => 'in:tersedia,disewa,maintenance',
@@ -93,21 +94,21 @@ class MotorController
 
         if ($request->hasFile('gambar')) {
             $gambar = $request->file('gambar');
-            $gambar->storeAs('public/motors', $gambar->hashName());
+            $gambar->storeAs('public/mobils', $gambar->hashName());
 
-            if ($motor->gambar) {
-                Storage::delete('public/motors/' . $motor->gambar);
+            if ($mobil->gambar) {
+                Storage::delete('public/mobils/' . $mobil->gambar);
             }
 
-            $motor->update(array_merge(
+            $mobil->update(array_merge(
                 $request->all(),
                 ['gambar' => $gambar->hashName()]
             ));
         } else {
-            $motor->update($request->all());
+            $mobil->update($request->all());
         }
 
-        return new MotorResource(true, 'Data Motor Berhasil Diubah!', $motor);
+        return new MobilResource(true, 'Data Mobil Berhasil Diubah!', $mobil);
     }
 
     /**
@@ -115,17 +116,17 @@ class MotorController
      */
     public function destroy(string $id)
     {
-        $motor = Motor::find($id);
+        $mobil = Mobil::find($id);
 
-        if (!$motor) {
-            return response()->json(['message' => 'Data Motor tidak ditemukan'], 404);
+        if (!$mobil) {
+            return response()->json(['message' => 'Data Mobil tidak ditemukan'], 404);
         }
 
-        if ($motor->gambar) {
-            Storage::delete('public/motors/' . $motor->gambar);
+        if ($mobil->gambar) {
+            Storage::delete('public/mobils/' . $mobil->gambar);
         }
 
-        $motor->delete();
-        return new MotorResource(true, 'Data Motor Berhasil Dihapus!', null);
+        $mobil->delete();
+        return new MobilResource(true, 'Data Mobil Berhasil Dihapus!', null);
     }
 }
