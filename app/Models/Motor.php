@@ -9,7 +9,6 @@ class Motor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_id',
         'plat_nomor',
         'merk',
         'tipe',
