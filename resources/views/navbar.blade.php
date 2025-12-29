@@ -19,7 +19,7 @@
                     <a class="nav-link" href="#">Pemesanan</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pembayaran</a>
+                    <a class="nav-link" href="{{ url('/pembayaran') }}">Pembayaran</a>
                 </li>
             </ul>
             <div class="d-flex">

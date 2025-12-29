@@ -8,8 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PembayaranResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
-class PembayaranController extends Controller
+class PembayaranController
 {
     public function index()
     {
@@ -120,4 +121,14 @@ class PembayaranController extends Controller
 
         return response()->json(['message' => 'Pembayaran berhasil dihapus'], 200);
     }
+    public function riwayat()
+{
+    // Ambil data peminjaman milik user yang sedang login, urutkan dari yang terbaru
+    $transaksi = Peminjaman::with('mobil') // Load relasi mobil
+                ->where('user_id', Auth::id())
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+    return view('pembayaran.history', compact('transaksi'));
+}
 }
