@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PembayaranController;
 use App\Models\Pembayaran; 
 use App\Http\Controllers\MotorController;
+use App\Http\Controllers\PeminjamanController;
 use App\Models\Motor;
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 Route::middleware(['auth'])->group(function () {
     // punya user atau penyewa
     Route::get('/pembayaran', [PembayaranController::class, 'create'])->name('pembayaran.create');
@@ -21,6 +22,8 @@ Route::prefix('admin')->group(function () {
     Route::patch('/pembayaran/{id}/verify', [PembayaranController::class, 'verify'])->name('admin.pembayaran.verify');
 
 });
+Route::get('/pembayaran/{id}', [PembayaranController::class, 'create'])->name('pembayaran.create');
+Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
 Route::get('motor', [MotorController::class, 'index'])->name('motor');
 Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
 Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
@@ -33,5 +36,13 @@ Route::get('/motor/{id}/edit', [MotorController::class, 'edit'])->name('motor.ed
 // Update (Proses Simpan Edit) -> Perhatikan Method PUT
 Route::put('/motor/{id}', [MotorController::class, 'update'])->name('motor.update');
 
+// Route Proses Simpan Motor (Action)
+Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
+Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+Route::get('/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+Route::get('/peminjaman/create/{id}/{type}', [PeminjamanController::class, 'create'])->name('peminjaman.create');
+Route::post('/peminjaman', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+Route::put('/peminjaman/{id}', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 // Delete (Proses Hapus) -> Perhatikan Method DELETE
 Route::delete('/motor/{id}', [MotorController::class, 'destroy'])->name('motor.destroy');

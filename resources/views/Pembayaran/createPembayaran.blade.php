@@ -5,6 +5,7 @@
     .payment-section {
         padding-top: 100px;
         padding-bottom: 50px;
+        margin-top: 50px;
     }
     
     .summary-card {
@@ -17,7 +18,6 @@
     }
     .summary-img {
         width: 100%;
-        height: 150px;
         object-fit: cover;
         border-radius: 10px 10px 0 0;
     }
@@ -118,10 +118,10 @@
 @section('content')
 <div class="container payment-section">
     <div class="row">
+        <h2 class="mb-4 fw-bold">Pembayaran</h2>
         <div class="col-lg-8 mb-4">
-            <h2 class="mb-4 fw-bold">Pembayaran</h2>
             
-            <form action="#" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('pembayaran.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="card border-0 shadow-sm mb-4">
@@ -130,11 +130,11 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-control" value="{{ Auth::user()->name ?? 'Nama User' }}" readonly>
+                                <input type="text" class="form-control" value="{{ $peminjaman->user->name ?? 'Nama User' }}" readonly>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Nomor WhatsApp</label>
-                                <input type="text" class="form-control" placeholder="Contoh: 08243532">
+                                <label class="form-label">Nomor Telepon</label>
+                                <input type="text" class="form-control" value="{{ $peminjaman->user->phone }}">
                             </div>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                                 </h2>
                                 <div id="collapseBCA" class="accordion-collapse collapse show" aria-labelledby="headingBCA" data-bs-parent="#accordionPayment">
                                     <div class="accordion-body bg-light">
-                                        <input type="radio" name="payment_method" value="bca" class="d-none payment-radio" checked>
+                                        <input type="radio" name="metode" value="bca" class="d-none payment-radio" checked>
                                         
                                         <div class="d-flex align-items-center">
                                             <div>
@@ -177,7 +177,7 @@
                                 </h2>
                                 <div id="collapseMandiri" class="accordion-collapse collapse" aria-labelledby="headingMandiri" data-bs-parent="#accordionPayment">
                                     <div class="accordion-body bg-light">
-                                        <input type="radio" name="payment_method" value="mandiri" class="d-none payment-radio">
+                                        <input type="radio" name="metode" value="mandiri" class="d-none payment-radio">
                                         
                                         <div class="d-flex align-items-center">
                                             <div>
@@ -201,10 +201,12 @@
                         
                         <div class="mb-3">
                             <label for="proof" class="form-label">File Gambar (JPG/PNG)</label>
-                            <input class="form-control" type="file" id="proof" name="payment_proof" required>
+                            <input class="form-control" type="file" id="proof" name="bukti" required>
                         </div>
                     </div>
                 </div>
+                <input type="hidden" name="peminjaman_id" value="{{ $peminjaman->id }}">
+                <input type="hidden" name="jumlah_bayar" value="{{ $totalBayar }}">
 
                 <button type="submit" class="btn btn-teal-fill btn-lg w-100 py-3 fw-bold">Konfirmasi Pembayaran</button>
             </form>
@@ -212,32 +214,32 @@
 
         <div class="col-lg-4">
             <div class="card summary-card">
-                <img src="https://purepng.com/public/uploads/large/purepng.com-grey-honda-cr-v-carcarhondavehicletransport-961524660855g0j98.png" class="summary-img" alt="Mobil">
+                <img src="{{ asset('storage/'.$peminjaman->kendaraan->gambar) }}" class="summary-img" alt="Mobil">
                 <div class="summary-content">
-                    <h5 class="fw-bold mb-1">Honda CR-V</h5>
-                    <p class="text-muted small mb-3">Tipe: SUV - Manual</p>
+                    <h5 class="fw-bold mb-1">{{ $peminjaman->kendaraan->nama }}</h5>
+                    <p class="text-muted small mb-3">Tipe: {{ $peminjaman->kendaraan->plat_nomor }} - {{ $peminjaman->kendaraan->warna }}</p>
                     <hr>
                     
                     <div class="price-row">
                         <span>Harga Sewa / Hari</span>
-                        <span class="fw-semibold">Rp 500.000</span>
+                        <span class="fw-semibold">Rp {{ number_format($peminjaman->kendaraan->harga_sewa, 0, ',', '.') }}</span>
                     </div>
                     <div class="price-row">
                         <span>Durasi Sewa</span>
-                        <span class="fw-semibold">3 Hari</span>
+                        <span class="fw-semibold">{{ $peminjaman->durasi }} Hari</span>
                     </div>
                     <div class="price-row">
                         <span>Tanggal Mulai</span>
-                        <span>01 Jan 2024</span>
+                        <span>{{ \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->format('d M Y') }}</span>
                     </div>
                     <div class="price-row">
                         <span>Tanggal Selesai</span>
-                        <span>04 Jan 2024</span>
+                        <span>{{ \Carbon\Carbon::parse($peminjaman->tanggal_kembali)->format('d M Y') }}</span>
                     </div>
 
                     <div class="total-row">
                         <span>Total Bayar</span>
-                        <span style="color: #5da898;">Rp 1.500.000</span>
+                        <span style="color: #5da898;">Rp {{ number_format($totalBayar, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>

@@ -27,14 +27,23 @@ class PembayaranController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-        'peminjaman_id' => 'required|exists:peminjamans,id',
-        'metode'        => 'required',                 
-        'jumlah_bayar'  => 'required|numeric',
-        'bukti'         => 'required|image|max:2048',  
-            ]);
+        $validator = Validator::make($request->all(), [
+            'peminjaman_id' => 'required|exists:peminjamans,id',
+            'metode'        => 'required',
+            'jumlah_bayar'  => 'required|numeric|min:1',
+            'bukti'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
-        $path = $request->file('bukti')->store('uploads/bukti_bayar', 'public');
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+
+        $path = $request->file('bukti')->store('bukti_bayar', 'public');
 
         Pembayaran::create([
         'peminjaman_id' => $request->peminjaman_id,
@@ -45,16 +54,23 @@ class PembayaranController extends Controller
         'bukti'         => $path,           
     ]);
 
-       return redirect('/history')->with('success', 'Pembayaran berhasil dikirim! Mohon tunggu verifikasi.');
+        // return (new PembayaranResource($pembayaran))
+        //     ->additional(['message' => 'Pembayaran berhasil dibuat'])
+        //     ->response()
+        //     ->setStatusCode(201);
+        return redirect()->route('peminjaman.show', $peminjaman->id)->with('success', 'Pembayaran berhasil dibuat dan sedang diproses.');
     }
-public function adminIndex()
-    {
-        // Menampilkan semua data (Pagination)
-        $pembayaran = Pembayaran::with(['peminjaman.user', 'peminjaman.kendaraan'])
-                        ->latest()
-                        ->paginate(10); 
 
-        return view('admin.pembayaran.index', compact('pembayaran'));
+    public function create($id)
+    {
+        $peminjaman = Peminjaman::with(['user', 'kendaraan'])->findOrFail($id);
+
+        // if ($peminjaman->user_id !== Auth::id()) {
+        //     abort(403, 'Anda tidak berhak membayar tagihan ini.');
+        // }
+        $totalBayar = $peminjaman->kendaraan->harga_sewa * $peminjaman->durasi;
+
+        return view('Pembayaran.createPembayaran', compact('peminjaman', 'totalBayar'));
     }
 
     public function verify(Request $request, $id)
