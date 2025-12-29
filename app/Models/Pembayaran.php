@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pembayaran extends Model
 {
-    //
-    use HasFactory;
-    protected $table = 'pembayarans';
-
     protected $fillable = [
-        'nama_pengirim',
-        'metode_pembayaran',
+        'peminjaman_id',
+        'tanggal_bayar',
         'jumlah_bayar',
-        'bukti_bayar',
+        'metode',
         'status',
+        'bukti',
     ];
+
+    public function peminjaman()
+    {
+        return $this->belongsTo(Peminjaman::class);
+    }
 }
