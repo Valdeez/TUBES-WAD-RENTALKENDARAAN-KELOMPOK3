@@ -8,7 +8,7 @@ use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class MotorController extends Controller
+class MotorController
 {
     /**
      * Display a listing of the resource.
@@ -25,9 +25,8 @@ class MotorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category_id'       => 'nullable|integer',
+            'nama'              => 'required',
             'plat_nomor'        => 'required|unique:motors',
-            'merk'              => 'required',
             'tipe'              => 'required',
             'tahun_produksi'    => 'required|integer',
             'warna'             => 'required',
@@ -40,24 +39,18 @@ class MotorController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $gambarPath = null;
-        if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $gambar->storeAs('public/motors', $gambar->hashName());
-            $gambarPath = $gambar->hashName();
-        }
+        $imagePath = $request->file('gambar')->store('motors', 'public');
 
         // 3. Simpan ke Database
         $motor = Motor::create([
-            'category_id'       => $request->category_id,
+            'nama'              => $request->nama,
             'plat_nomor'        => $request->plat_nomor,
-            'merk'              => $request->merk,
             'tipe'              => $request->tipe,
             'tahun_produksi'    => $request->tahun_produksi,
             'warna'             => $request->warna,
             'harga_sewa'        => $request->harga_sewa,
             'status'            => $request->status,
-            'gambar'            => $gambarPath,
+            'gambar'            => $imagePath,
         ]);
         return new MotorResource(true, 'Data Motor Berhasil Ditambahkan!', $motor);
     }
@@ -87,7 +80,7 @@ class MotorController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'plat_nomor'    => 'unique:motors,plat_nomor,' . $id,
+            'plat_nomor'    => 'unique:motors,plat_nomor',
             'tahun_produksi' => 'integer',
             'harga_sewa'    => 'numeric',
             'status'        => 'in:tersedia,disewa,maintenance',
