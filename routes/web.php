@@ -8,9 +8,16 @@ Route::get('/', function () {
     return view('home');
 });
 Route::get('motor', [MotorController::class, 'index'])->name('motor');
+Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
+Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
+
 Route::get('/motor/{id}', [MotorController::class, 'show'])->name('motor.detail');
 
-Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
+// Edit (Menampilkan Form)
+Route::get('/motor/{id}/edit', [MotorController::class, 'edit'])->name('motor.edit');
 
-// Route Proses Simpan Motor (Action)
-Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
+// Update (Proses Simpan Edit) -> Perhatikan Method PUT
+Route::put('/motor/{id}', [MotorController::class, 'update'])->name('motor.update');
+
+// Delete (Proses Hapus) -> Perhatikan Method DELETE
+Route::delete('/motor/{id}', [MotorController::class, 'destroy'])->name('motor.destroy');
