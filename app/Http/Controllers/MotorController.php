@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Motor;
 use Illuminate\Http\Request;
-use App\Http\Resources\MotorResource; 
+use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,7 +16,8 @@ class MotorController
     public function index()
     {
         $motors = Motor::latest()->get();
-        return new MotorResource(true, 'List Data Motor', $motors);
+        // return new MotorResource(true, 'List Data Motor', $motors);
+        return view('Motor.motor', compact('motors'));
     }
 
     /**
@@ -35,7 +36,7 @@ class MotorController
             'gambar'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
@@ -62,10 +63,10 @@ class MotorController
     {
         $motor = Motor::find($id);
 
-        if(!$motor){
+        if (!$motor) {
             return response()->json(['message' => 'Data Motor tidak ditemukan!'], 404);
         }
-        return new MotorResource(true, 'Detail Data Motor', $motor);
+        return view('Motor.detailMotor', compact('motor'));;
     }
 
     /**
@@ -75,7 +76,7 @@ class MotorController
     {
         $motor = Motor::find($id);
 
-        if(!$motor){
+        if (!$motor) {
             return response()->json(['message' => 'Data Motor tidak ditemukan'], 404);
         }
 

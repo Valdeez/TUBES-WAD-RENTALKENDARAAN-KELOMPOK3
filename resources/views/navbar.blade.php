@@ -13,7 +13,7 @@
                     <a class="nav-link" href="#">Mobil</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Motor</a>
+                    <a class="nav-link" href="{{route('motor')}}">Motor</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Pemesanan</a>
