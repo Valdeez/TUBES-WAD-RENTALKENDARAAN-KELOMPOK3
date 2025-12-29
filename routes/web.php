@@ -1,11 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PembayaranController;
+use App\Models\Pembayaran; 
 use App\Http\Controllers\MotorController;
 use App\Models\Motor;
 
 Route::get('/', function () {
     return view('home');
+});
+Route::get('/pembayaran', function(){
+ return view('pembayaran.createPembayaran');
 });
 Route::get('motor', [MotorController::class, 'index'])->name('motor');
 Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
