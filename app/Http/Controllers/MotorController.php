@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Motor;
 use Illuminate\Http\Request;
-use App\Http\Resources\MotorResource; 
+use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,26 +16,31 @@ class MotorController
     public function index()
     {
         $motors = Motor::latest()->get();
-        return new MotorResource(true, 'List Data Motor', $motors);
+        // return new MotorResource(true, 'List Data Motor', $motors);
+        return view('Motor.motor', compact('motors'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    public function create()
+    {
+        return view('Motor.createMotor');
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nama'              => 'required',
-            'plat_nomor'        => 'required|unique:motors',
+            'plat_nomor'        => 'required|',
             'tipe'              => 'required',
             'tahun_produksi'    => 'required|integer',
             'warna'             => 'required',
             'harga_sewa'        => 'required|numeric',
-            'status'            => 'required|in:tersedia,disewa,maintenance',
             'gambar'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
@@ -49,10 +54,9 @@ class MotorController
             'tahun_produksi'    => $request->tahun_produksi,
             'warna'             => $request->warna,
             'harga_sewa'        => $request->harga_sewa,
-            'status'            => $request->status,
             'gambar'            => $imagePath,
         ]);
-        return new MotorResource(true, 'Data Motor Berhasil Ditambahkan!', $motor);
+        return redirect()->route('motor');
     }
 
     /**
@@ -62,52 +66,72 @@ class MotorController
     {
         $motor = Motor::find($id);
 
-        if(!$motor){
+        if (!$motor) {
             return response()->json(['message' => 'Data Motor tidak ditemukan!'], 404);
         }
-        return new MotorResource(true, 'Detail Data Motor', $motor);
+        return view('Motor.detailMotor', compact('motor'));;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $motor = Motor::find($id);
+        // 1. Ambil data motor lama berdasarkan ID
+        $motor = \App\Models\Motor::find($id);
 
-        if(!$motor){
-            return response()->json(['message' => 'Data Motor tidak ditemukan'], 404);
+        if (!$motor) {
+            return redirect()->route('motor')->with('error', 'Data tidak ditemukan');
         }
 
-        $validator = Validator::make($request->all(), [
-            'plat_nomor'    => 'unique:motors,plat_nomor',
-            'tahun_produksi' => 'integer',
-            'harga_sewa'    => 'numeric',
-            'status'        => 'in:tersedia,disewa,maintenance',
-            'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // 2. Validasi Input
+        $request->validate([
+            'nama' => 'required',
+            'tipe' => 'required',
+            // PERHATIKAN BARIS DI BAWAH INI:
+            // Format: unique:nama_tabel,nama_kolom,id_yang_dikecualikan
+            'plat_nomor' => 'required|unique:motors,plat_nomor,' . $motor->id,
+            'warna' => 'required',
+            'harga_sewa' => 'required|numeric',
+            'tahun_produksi' => 'nullable|numeric',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Gambar boleh kosong (nullable)
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
+        // 3. Cek apakah user upload gambar baru?
         if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $gambar->storeAs('public/motors', $gambar->hashName());
-
-            if ($motor->gambar) {
-                Storage::delete('public/motors/' . $motor->gambar);
+            // Hapus gambar lama jika ada (opsional, biar server gak penuh)
+            if ($motor->gambar && \Illuminate\Support\Facades\Storage::exists('public/' . $motor->gambar)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $motor->gambar);
             }
 
-            $motor->update(array_merge(
-                $request->all(),
-                ['gambar' => $gambar->hashName()]
-            ));
-        } else {
-            $motor->update($request->all());
+            // Simpan gambar baru
+            $imagePath = $request->file('gambar')->store('motors', 'public');
+            $motor->gambar = $imagePath;
         }
 
-        return new MotorResource(true, 'Data Motor Berhasil Diubah!', $motor);
+        // 4. Update data lainnya
+        $motor->nama = $request->nama;
+        $motor->tipe = $request->tipe;
+        $motor->plat_nomor = $request->plat_nomor;
+        $motor->warna = $request->warna;
+        $motor->tahun_produksi = $request->tahun_produksi;
+        $motor->harga_sewa = $request->harga_sewa;
+
+        // Simpan ke database
+        $motor->save();
+
+        // 5. Redirect kembali ke halaman utama
+        return redirect()->route('motor')->with('success', 'Data motor berhasil diperbarui!');
+    
+    }
+
+    public function edit($id)
+    {
+        // Cari data motor berdasarkan ID
+        $motor = Motor::find($id);
+
+        // Kirim data $motor ke view 'edit'
+        return view('Motor.editMotor', compact('motor'));
     }
 
     /**
@@ -126,6 +150,6 @@ class MotorController
         }
 
         $motor->delete();
-        return new MotorResource(true, 'Data Motor Berhasil Dihapus!', null);
+        return redirect()->route('motor')->with('success', 'Data motor berhasil dihapus!');
     }
 }
