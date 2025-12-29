@@ -39,9 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
         });
 });
-   // });
 
-//});
 use App\Http\Controllers\MobilController;
 use App\Http\Controllers\MotorController;
 
