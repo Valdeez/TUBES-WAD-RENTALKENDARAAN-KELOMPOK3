@@ -119,7 +119,7 @@
                         <h3 class="vehicle-name">{{ $motor->nama }}</h3>
                         <span class="vehicle-type">{{ $motor->tipe }}</span>
                         <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-teal-outline btn-block mt-2">Lihat Detail</a>
-                        <a href="#" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
                     </div>
                 </div>
             </div>
