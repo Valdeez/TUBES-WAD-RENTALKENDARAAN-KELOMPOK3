@@ -16,7 +16,7 @@
                     <a class="nav-link" href="{{route('motor')}}">Motor</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pemesanan</a>
+                    <a class="nav-link" href="{{ route('peminjaman.index') }}">Peminjaman</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url('/pembayaran') }}">Pembayaran</a>
