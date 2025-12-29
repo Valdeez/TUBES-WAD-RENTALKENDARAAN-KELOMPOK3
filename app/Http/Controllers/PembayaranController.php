@@ -10,125 +10,70 @@ use App\Http\Resources\PembayaranResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
-class PembayaranController
+class PembayaranController extends Controller
 {
-    public function index()
+   public function index()
     {
-        return PembayaranResource::collection(
-            Pembayaran::with('peminjaman')->latest()->get()
-        );
+        $userId = Auth::id();
+        $transaksi = Pembayaran::with(['peminjaman.kendaraan'])
+            ->whereHas('peminjaman', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->latest()
+            ->get();
+
+        return view('pembayaran.history', compact('transaksi'));
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'peminjaman_id' => 'required|exists:peminjamans,id',
-            'metode'        => 'required|in:transfer,cash,ewallet',
-            'jumlah_bayar'  => 'required|numeric|min:1',
-            'bukti'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Data tidak valid',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
-
-        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+        $request->validate([
+        'peminjaman_id' => 'required|exists:peminjamans,id',
+        'metode'        => 'required',                 
+        'jumlah_bayar'  => 'required|numeric',
+        'bukti'         => 'required|image|max:2048',  
+            ]);
 
         $path = $request->file('bukti')->store('uploads/bukti_bayar', 'public');
 
-        $pembayaran = Pembayaran::create([
-            'peminjaman_id' => $peminjaman->id,
-            'tanggal_bayar' => now(),
-            'jumlah_bayar'  => $request->jumlah_bayar,
-            'metode'        => $request->metode,
-            'status'        => 'pending',
-            'bukti'         => $path,
+        Pembayaran::create([
+        'peminjaman_id' => $request->peminjaman_id,
+        'tanggal_bayar' => now(),
+        'jumlah_bayar'  => $request->jumlah_bayar,
+        'metode'        => $request->metode,
+        'status'        => 'menunggu_verifikasi',
+        'bukti'         => $path,           
+    ]);
+
+       return redirect('/history')->with('success', 'Pembayaran berhasil dikirim! Mohon tunggu verifikasi.');
+    }
+public function adminIndex()
+    {
+        // Menampilkan semua data (Pagination)
+        $pembayaran = Pembayaran::with(['peminjaman.user', 'peminjaman.kendaraan'])
+                        ->latest()
+                        ->paginate(10); 
+
+        return view('admin.pembayaran.index', compact('pembayaran'));
+    }
+
+    public function verify(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:lunas,ditolak'
         ]);
 
-        return (new PembayaranResource($pembayaran))
-            ->additional(['message' => 'Pembayaran berhasil dibuat'])
-            ->response()
-            ->setStatusCode(201);
-    }
-
-    public function show($id)
-    {
-        $pembayaran = Pembayaran::with('peminjaman')->find($id);
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
-        }
-
-        return new PembayaranResource($pembayaran);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $pembayaran = Pembayaran::find($id);
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,lunas,gagal',
-            'bukti'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        $pembayaran = Pembayaran::findOrFail($id);
+        
+        $pembayaran->update([
+            'status' => $request->status
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validasi gagal',
-                'errors'  => $validator->errors()
-            ], 422);
+        if($request->status == 'lunas') {
+            $pembayaran->peminjaman->update(['status' => 'disewa']); 
+        } elseif($request->status == 'ditolak') {
+            $pembayaran->peminjaman->update(['status' => 'menunggu_pembayaran']); 
         }
 
-        if ($request->hasFile('bukti')) {
-            Storage::disk('public')->delete($pembayaran->bukti);
-            $pembayaran->bukti = $request->file('bukti')
-                ->store('uploads/bukti_bayar', 'public');
-        }
-
-        $pembayaran->status = $request->status;
-        $pembayaran->save();
-
-        if ($request->status === 'lunas') {
-            $peminjaman = $pembayaran->peminjaman;
-
-            if ($peminjaman->totalDibayar() >= $peminjaman->total_tagihan) {
-                $peminjaman->update(['status' => 'selesai']);
-            }
-        }
-
-        return (new PembayaranResource($pembayaran))
-            ->additional(['message' => 'Status pembayaran diperbarui'])
-            ->response()
-            ->setStatusCode(200);
+        return redirect()->back()->with('success', 'Status pembayaran diperbarui!');
     }
-
-    public function destroy($id)
-    {
-        $pembayaran = Pembayaran::find($id);
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
-        }
-
-        Storage::disk('public')->delete($pembayaran->bukti);
-        $pembayaran->delete();
-
-        return response()->json(['message' => 'Pembayaran berhasil dihapus'], 200);
-    }
-    public function riwayat()
-{
-    // Ambil data peminjaman milik user yang sedang login, urutkan dari yang terbaru
-    $transaksi = Peminjaman::with('mobil') // Load relasi mobil
-                ->where('user_id', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-    return view('pembayaran.history', compact('transaksi'));
-}
 }
