@@ -18,7 +18,7 @@ return new class extends Migration
             $table->datetime('tanggal_pinjam');
             $table->datetime('tanggal_kembali');
             $table->integer('durasi');
-            $table->enum('status', ['disewa', 'dikembalikan']);
+            $table->enum('status', ['pending', 'disewa', 'selesai', 'dibatalkan'])->default('pending');
             $table->timestamps();
         });
     }

@@ -56,7 +56,8 @@
                         
                         @php
                             $statusClass = match($peminjaman->status) {
-                                'disewa' => 'bg-warning text-dark',
+                                'pending' => 'bg-warning text-white',
+                                'disewa' => 'bg-info text-white',
                                 'selesai'  => 'bg-success text-white',
                                 'dibatalkan' => 'bg-danger text-white',
                                 default    => 'bg-secondary text-white'
@@ -111,15 +112,35 @@
                     </div>
 
                     <div class="mt-4 d-grid gap-2">
-                        @if($peminjaman->status == 'disewa')
-                            {{-- {{ route('pembayaran.create', $peminjaman->id) }} --}}
-                            <a href="" class="btn btn-teal-fill btn-lg">
-                                <i class="bi bi-credit-card me-2"></i> Lanjutkan Pembayaran
+                        @if(!$peminjaman->pembayaran)
+                            <a href="{{ route('pembayaran.create', $peminjaman->id) }}" class="btn btn-teal-fill btn-lg">
+                                Lanjutkan Pembayaran
                             </a>
+                        @elseif($peminjaman->status == 'pending')
+                            <button class="btn btn-secondary btn-lg" disabled>
+                                Menunggu Verifikasi
+                            </button>
+                        @elseif($peminjaman->status == 'disewa')
+                            <form action="{{ route('peminjaman.update', $peminjaman->id) }}" method="POST" class="d-grid">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-teal-fill btn-lg" onclick="return confirm('Apakah Anda yakin ingin mengembalikan kendaraan ini?')">
+                                    Selesaikan Sewa
+                                </button>
+                            </form>
+                        @elseif($peminjaman->status == 'selesai')
+                            <button class="btn btn-teal-fill btn-lg">
+                                Tambahkan Review
+                            </button>
                         @endif
-
-                        @if($peminjaman->status == 'selesai')
-                            <button class="btn btn-secondary btn-lg" disabled>Transaksi Selesai</button>
+                        @if ($peminjaman->status == 'dibatalkan' || $peminjaman->status == 'selesai')
+                            <form action="{{ route('peminjaman.destroy', $peminjaman->id) }}" method="POST" class="d-grid">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-lg" onclick="return confirm('Apakah Anda yakin ingin menghapus riwayat ini?')">
+                                    Hapus Riwayat
+                                </button>
+                            </form>
                         @endif
                     </div>
 
