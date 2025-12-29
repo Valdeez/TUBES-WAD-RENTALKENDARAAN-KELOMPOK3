@@ -20,8 +20,31 @@
                     @endif
                 </div>
 
-                <div class="col-md-6 p-5">
-                    <h5 class="text-muted text-uppercase letter-spacing-1">{{ $motor->tipe }}</h5>
+                <div class="col-md-6 p-5 position-relative">
+                    
+                    {{-- === KODE YANG BARU DITAMBAHKAN === --}}
+                    @if(true)
+                        <div class="position-absolute top-0 end-0 m-4 d-flex gap-2" style="z-index: 10;">
+                            
+                            {{-- Tombol Edit --}}
+                            <a href="{{ route('motor.edit', $motor->id) }}" class="btn btn-warning text-white btn-sm px-3 shadow-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+
+                            {{-- Tombol Delete --}}
+                            <form action="{{ route('motor.destroy', $motor->id) }}" method="POST" onsubmit="return confirm('Yakin hapus motor ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm px-3 shadow-sm">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            </form>
+
+                        </div>
+                    @endif
+                    {{-- =================================== --}}
+
+                    <h5 class="text-muted text-uppercase letter-spacing-1 mt-2">{{ $motor->tipe }}</h5>
                     <h1 class="fw-bold text-dark mb-3">{{ $motor->nama }}</h1>
                     
                     <div class="mb-4">
@@ -71,10 +94,9 @@
     </div>
 </div>
 
-{{-- Tambahan CSS kecil khusus halaman ini --}}
 <style>
     .btn-teal-fill {
-        background-color: #20c997; /* Sesuaikan dengan warna teal kamu */
+        background-color: #20c997; 
         color: white;
         border: none;
     }
