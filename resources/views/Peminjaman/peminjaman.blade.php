@@ -26,7 +26,6 @@
                                          style="object-fit: contain;">
                                 @else
                                     <div class="text-center text-muted p-4">
-                                        <i class="bi bi-image fs-1 d-block mb-2"></i>
                                         <small>Tidak ada gambar</small>
                                     </div>
                                 @endif
@@ -47,7 +46,8 @@
                                         
                                         @php
                                             $statusClass = match($item->status) {
-                                                'disewa' => 'bg-warning text-dark',
+                                                'pending' => 'bg-warning text-white',
+                                                'disewa' => 'bg-info text-white',
                                                 'selesai'  => 'bg-success text-white',
                                                 'dibatalkan' => 'bg-danger text-white',
                                                 default    => 'bg-secondary text-white'
@@ -82,10 +82,22 @@
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('peminjaman.show', $item->id) }}" class="btn btn-outline-secondary px-4">Lihat Detail</a>
                                             
-                                            @if($item->status == 'disewa')
-                                                <a href="" class="btn btn-teal-fill px-4 shadow-sm">
+                                            @if(!$item->pembayaran)
+                                                <a href="{{ route('pembayaran.create', $item->id) }}" class="btn btn-teal-fill px-4 shadow-sm">
                                                     Bayar Sekarang
                                                 </a>
+                                            @elseif($item->status == 'pending')
+                                                <button class="btn btn-secondary px-4" disabled>
+                                                    Menunggu Verifikasi
+                                                </button>
+                                            @elseif($item->status == 'disewa')
+                                                <a href="{{ route('peminjaman.update', $item->id) }}" class="btn btn-teal-fill px-4 shadow-sm">
+                                                    Selesaikan Sewa
+                                                </a>
+                                            @elseif($item->status == 'selesai')
+                                                <button class="btn btn-teal-fill px-4">
+                                                    Tambahkan Review
+                                                </button>
                                             @endif
                                         </div>
                                     </div>

@@ -20,12 +20,16 @@ class Peminjaman extends Model
 
     public function user()
     {
-        // return $this->belongsTo(User::class);
-        return null;
+        return $this->belongsTo(User::class);
     }
 
     public function kendaraan()
     {
         return $this->morphTo();
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class);
     }
 }

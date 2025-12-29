@@ -12,7 +12,7 @@ class PeminjamanController
 {
     public function index()
     {
-        $peminjamans = Peminjaman::where('user_id', 1)->with('kendaraan')->latest()->get();
+        $peminjamans = Peminjaman::where('user_id', 1)->with(['kendaraan', 'pembayaran'])->latest()->get();
 
         return view('Peminjaman.peminjaman', compact('peminjamans'));
     }
@@ -36,13 +36,11 @@ class PeminjamanController
             'durasi'         => 'required|integer|min:1'
         ]);
 
-        // Tentukan model kendaraan
         $kendaraan = $this->getKendaraan(
             $request->kendaraan_type,
             $request->kendaraan_id
         );
 
-        // Cek ketersediaan kendaraan
         if ($kendaraan->status !== 'tersedia') {
             return response()->json([
                 'message' => 'Kendaraan sedang tidak tersedia'
@@ -51,17 +49,14 @@ class PeminjamanController
 
         // Simpan peminjaman
         $peminjaman = Peminjaman::create([
-            // 'user_id'         => auth()->id(),
-            'user_id'         => 1,
+            'user_id'         => auth()->id() ?? 1,
             'kendaraan_id'    => $kendaraan->id,
             'kendaraan_type'  => get_class($kendaraan),
             'tanggal_pinjam'  => $request->tanggal_pinjam,
             'tanggal_kembali' => Carbon::parse($request->tanggal_pinjam)->addDays((int)$request->durasi),
             'durasi'          => $request->durasi,
-            'status'          => 'disewa',
         ]);
 
-        // Update status kendaraan
         $kendaraan->update([
             'status' => 'disewa'
         ]);
@@ -84,32 +79,29 @@ class PeminjamanController
         return view('Peminjaman.detailPeminjaman', compact('peminjaman'));
     }
 
-    public function kembalikan($id)
+    public function update($id)
     {
         $peminjaman = Peminjaman::with('kendaraan')->findOrFail($id);
-
-        if ($peminjaman->status === 'dikembalikan') {
-            return response()->json([
-                'message' => 'Peminjaman sudah dikembalikan'
-            ], 422);
-        }
-
         $tanggalKembali = Carbon::now();
 
         $peminjaman->update([
             'tanggal_kembali' => $tanggalKembali,
-            'status'          => 'dikembalikan'
+            'status'          => 'selesai'
         ]);
 
-        // Update status kendaraan
         $peminjaman->kendaraan->update([
             'status' => 'tersedia'
         ]);
 
-        return response()->json([
-            'message' => 'Kendaraan berhasil dikembalikan',
-            'data'    => $peminjaman
-        ]);
+        return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil diselesaikan.');
+    }
+
+    public function destroy($id)
+    {
+        $peminjaman = Peminjaman::with('kendaraan')->findOrFail($id);
+        $peminjaman->delete();
+
+        return redirect()->route('peminjaman.index')->with('success', 'Riwayat peminjaman berhasil dihapus.');
     }
 
     private function getKendaraan($type, $id)

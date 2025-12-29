@@ -23,7 +23,7 @@ class PembayaranController
     {
         $validator = Validator::make($request->all(), [
             'peminjaman_id' => 'required|exists:peminjamans,id',
-            'metode'        => 'required|in:transfer,cash,ewallet',
+            'metode'        => 'required',
             'jumlah_bayar'  => 'required|numeric|min:1',
             'bukti'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -37,7 +37,7 @@ class PembayaranController
 
         $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
 
-        $path = $request->file('bukti')->store('uploads/bukti_bayar', 'public');
+        $path = $request->file('bukti')->store('bukti_bayar', 'public');
 
         $pembayaran = Pembayaran::create([
             'peminjaman_id' => $peminjaman->id,
@@ -48,21 +48,23 @@ class PembayaranController
             'bukti'         => $path,
         ]);
 
-        return (new PembayaranResource($pembayaran))
-            ->additional(['message' => 'Pembayaran berhasil dibuat'])
-            ->response()
-            ->setStatusCode(201);
+        // return (new PembayaranResource($pembayaran))
+        //     ->additional(['message' => 'Pembayaran berhasil dibuat'])
+        //     ->response()
+        //     ->setStatusCode(201);
+        return redirect()->route('peminjaman.show', $peminjaman->id)->with('success', 'Pembayaran berhasil dibuat dan sedang diproses.');
     }
 
-    public function show($id)
+    public function create($id)
     {
-        $pembayaran = Pembayaran::with('peminjaman')->find($id);
+        $peminjaman = Peminjaman::with(['user', 'kendaraan'])->findOrFail($id);
 
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
-        }
+        // if ($peminjaman->user_id !== Auth::id()) {
+        //     abort(403, 'Anda tidak berhak membayar tagihan ini.');
+        // }
+        $totalBayar = $peminjaman->kendaraan->harga_sewa * $peminjaman->durasi;
 
-        return new PembayaranResource($pembayaran);
+        return view('Pembayaran.createPembayaran', compact('peminjaman', 'totalBayar'));
     }
 
     public function update(Request $request, $id)
@@ -88,7 +90,7 @@ class PembayaranController
         if ($request->hasFile('bukti')) {
             Storage::disk('public')->delete($pembayaran->bukti);
             $pembayaran->bukti = $request->file('bukti')
-                ->store('uploads/bukti_bayar', 'public');
+                ->store('bukti_bayar', 'public');
         }
 
         $pembayaran->status = $request->status;
@@ -121,14 +123,14 @@ class PembayaranController
 
         return response()->json(['message' => 'Pembayaran berhasil dihapus'], 200);
     }
-    public function riwayat()
-{
-    // Ambil data peminjaman milik user yang sedang login, urutkan dari yang terbaru
-    $transaksi = Peminjaman::with('mobil') // Load relasi mobil
-                ->where('user_id', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->get();
+    // public function riwayat()
+    // {
+    //     // Ambil data peminjaman milik user yang sedang login, urutkan dari yang terbaru
+    //     $transaksi = Peminjaman::with('mobil') // Load relasi mobil
+    //                 ->where('user_id', Auth::id())
+    //                 ->orderBy('created_at', 'desc')
+    //                 ->get();
 
-    return view('pembayaran.history', compact('transaksi'));
-}
+    //     return view('pembayaran.history', compact('transaksi'));
+    // }
 }
