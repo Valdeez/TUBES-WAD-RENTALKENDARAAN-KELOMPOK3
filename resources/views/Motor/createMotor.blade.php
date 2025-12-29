@@ -9,8 +9,6 @@
                     <h4 class="mb-0 fw-bold text-dark">Tambah Motor Baru</h4>
                 </div>
                 <div class="card-body p-4">
-                    
-                    {{-- Form Upload (enctype wajib ada untuk upload file) --}}
                     <form action="{{ route('motor.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
@@ -28,18 +26,18 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Plat Nomor</label>
-                                <input type="text" name="plat_nomor" class="form-control" placeholder="D 1234 ABC" required>
+                                <input type="text" name="plat_nomor" class="form-control" placeholder="Contoh: D 1234 ABC" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Warna</label>
-                                <input type="text" name="warna" class="form-control" placeholder="Hitam" required>
+                                <input type="text" name="warna" class="form-control" placeholder="Contoh: Hitam" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tahun Produksi</label>
-                                <input type="number" name="tahun_produksi" class="form-control" value="2024">
+                                <input type="number" name="tahun_produksi" class="form-control" placeholder="Contoh: 2024">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Harga Sewa (Per Hari)</label>
