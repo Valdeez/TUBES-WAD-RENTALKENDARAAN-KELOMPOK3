@@ -17,8 +17,8 @@ return new class extends Migration
             $table->morphs('kendaraan');
             $table->datetime('tanggal_pinjam');
             $table->datetime('tanggal_kembali');
-            $table->time('durasi');
-            $table->enum('status', ['dipinjam', 'dikembalikan']);
+            $table->integer('durasi');
+            $table->enum('status', ['pending', 'disewa', 'selesai', 'dibatalkan'])->default('pending');
             $table->timestamps();
         });
     }

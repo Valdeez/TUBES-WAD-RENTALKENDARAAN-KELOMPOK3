@@ -20,9 +20,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // index (GET /api/pembayaran)
     // show (GET /api/pembayaran/{id})
     // store (POST /api/pembayaran)
-    Route::resource('pembayaran', PembayaranController::class)->only([
-        'index', 'show', 'store'
-    ]);
+    // Route::resource('pembayaran', PembayaranController::class)->only([
+    //     'index', 'show', 'store'
+    // ]);
     
     // 2. Route yang HANYA bisa diakses oleh ADMIN (Update & Delete)
     Route::middleware('role:admin')->group(function () {
