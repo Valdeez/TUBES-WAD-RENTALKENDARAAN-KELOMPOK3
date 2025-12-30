@@ -55,7 +55,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('motor') }}" class="btn btn-outline-secondary">Batal</a>
+                            <a href="{{ route('motor.index') }}" class="btn btn-outline-secondary">Batal</a>
                             <button type="submit" class="btn btn-teal-fill px-5">Simpan Data</button>
                         </div>
                     </form>
