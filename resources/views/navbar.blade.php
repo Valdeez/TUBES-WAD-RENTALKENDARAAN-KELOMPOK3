@@ -11,7 +11,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('mobil*') ? 'active' : '' }}" href="#">Mobil</a>
+                    <a class="nav-link {{ Route::is('mobil.*') ? 'active' : '' }}" href="{{ route('mobil.index') }}">Mobil</a>
                 </li>
 
                 <li class="nav-item">
