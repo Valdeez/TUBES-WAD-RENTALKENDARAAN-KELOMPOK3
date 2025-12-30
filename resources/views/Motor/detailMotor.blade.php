@@ -4,7 +4,7 @@
 <div class="container" style="margin-top: 150px; margin-bottom: 80px;">
     
     <div class="mb-4">
-        <a href="{{ route('motor') }}" class="btn btn-teal-outline">
+        <a href="{{ route('motor.index') }}" class="btn btn-teal-outline">
             <i class="fas fa-arrow-left"></i> Kembali ke Daftar Motor
         </a>
     </div>
@@ -88,6 +88,13 @@
                     </div>
                 </div>
             </div>
+            @if($reviews->count() > 0)
+                <hr class="p-0 m-0">
+                <div class="review-section py-3 px-4">
+                    <h5 class="fw-bold mb-3">Ulasan Pengguna</h5>
+                    @include('Review.reviewSection')
+                </div>
+            @endif
         </div>
     </div>
 </div>

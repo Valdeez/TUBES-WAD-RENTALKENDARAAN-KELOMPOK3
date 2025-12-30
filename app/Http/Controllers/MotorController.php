@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Motor;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
@@ -56,7 +57,7 @@ class MotorController
             'harga_sewa'        => $request->harga_sewa,
             'gambar'            => $imagePath,
         ]);
-        return redirect()->route('motor');
+        return redirect()->route('motor.index');
     }
 
     /**
@@ -69,7 +70,9 @@ class MotorController
         if (!$motor) {
             return response()->json(['message' => 'Data Motor tidak ditemukan!'], 404);
         }
-        return view('Motor.detailMotor', compact('motor'));;
+        $reviews = Review::whereIn('peminjaman_id', $motor->peminjamans->pluck('id'))->latest()->get();
+
+        return view('Motor.detailMotor', compact('motor', 'reviews'));;
     }
 
     /**
@@ -121,7 +124,7 @@ class MotorController
         $motor->save();
 
         // 5. Redirect kembali ke halaman utama
-        return redirect()->route('motor')->with('success', 'Data motor berhasil diperbarui!');
+        return redirect()->route('motor.index')->with('success', 'Data motor berhasil diperbarui!');
     
     }
 
@@ -150,6 +153,6 @@ class MotorController
         }
 
         $motor->delete();
-        return redirect()->route('motor')->with('success', 'Data motor berhasil dihapus!');
+        return redirect()->route('motor.index')->with('success', 'Data motor berhasil dihapus!');
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\PembayaranController;
 use App\Models\Pembayaran; 
 use App\Http\Controllers\MotorController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\ReviewController;
 use App\Models\Motor;
 
 Route::get('/', function () {
@@ -23,7 +24,7 @@ Route::prefix('admin')->group(function () {
     Route::patch('/pembayaran/{id}/verify', [PembayaranController::class, 'verify'])->name('admin.pembayaran.verify');
 
 });
-Route::get('motor', [MotorController::class, 'index'])->name('motor');
+Route::get('motor', [MotorController::class, 'index'])->name('motor.index');
 Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
 Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
 
@@ -45,3 +46,8 @@ Route::put('/peminjaman/{id}', [PeminjamanController::class, 'update'])->name('p
 Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 // Delete (Proses Hapus) -> Perhatikan Method DELETE
 Route::delete('/motor/{id}', [MotorController::class, 'destroy'])->name('motor.destroy');
+Route::get('/review/create/{peminjaman_id}', [ReviewController::class, 'create'])->name('review.create');
+Route::post('/review', [ReviewController::class, 'store'])->name('review.store');
+Route::get('/review/{review}/edit', [ReviewController::class, 'edit'])->name('review.edit');
+Route::put('/review/{review}', [ReviewController::class, 'update'])->name('review.update');
+Route::delete('/review{review}', [ReviewController::class, 'destroy'])->name('review.destroy');

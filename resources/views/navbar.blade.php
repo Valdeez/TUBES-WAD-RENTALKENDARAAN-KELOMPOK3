@@ -15,7 +15,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::is('motor.*') ? 'active' : '' }}" href="{{ route('motor') }}">Motor</a>
+                    <a class="nav-link {{ Route::is('motor.*') ? 'active' : '' }}" href="{{ route('motor.index') }}">Motor</a>
                 </li>
 
                 <li class="nav-item">

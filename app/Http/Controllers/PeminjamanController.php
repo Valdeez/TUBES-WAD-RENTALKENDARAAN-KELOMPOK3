@@ -47,7 +47,6 @@ class PeminjamanController
             ], 422);
         }
 
-        // Simpan peminjaman
         $peminjaman = Peminjaman::create([
             'user_id'         => auth()->id() ?? 1,
             'kendaraan_id'    => $kendaraan->id,
@@ -70,7 +69,7 @@ class PeminjamanController
 
     public function show($id)
     {
-        $peminjaman = Peminjaman::with('kendaraan')->findOrFail($id);
+        $peminjaman = Peminjaman::with(['kendaraan', 'review'])->findOrFail($id);
 
         // if ($peminjaman->user_id !== auth()->id()) {
         //     abort(403, 'Anda tidak memiliki akses ke data ini.');
