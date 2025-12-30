@@ -77,7 +77,7 @@ class MotorController
      */
     public function update(Request $request, $id)
     {
-        // 1. Ambil data motor lama berdasarkan ID
+
         $motor = \App\Models\Motor::find($id);
 
         if (!$motor) {
@@ -88,13 +88,12 @@ class MotorController
         $request->validate([
             'nama' => 'required',
             'tipe' => 'required',
-            // PERHATIKAN BARIS DI BAWAH INI:
-            // Format: unique:nama_tabel,nama_kolom,id_yang_dikecualikan
             'plat_nomor' => 'required|unique:motors,plat_nomor,' . $motor->id,
             'warna' => 'required',
             'harga_sewa' => 'required|numeric',
             'tahun_produksi' => 'nullable|numeric',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Gambar boleh kosong (nullable)
+            'status' => 'required',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         // 3. Cek apakah user upload gambar baru?
@@ -116,6 +115,7 @@ class MotorController
         $motor->warna = $request->warna;
         $motor->tahun_produksi = $request->tahun_produksi;
         $motor->harga_sewa = $request->harga_sewa;
+        $motor->status = $request->status;
 
         // Simpan ke database
         $motor->save();

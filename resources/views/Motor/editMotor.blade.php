@@ -3,9 +3,9 @@
 @section('content')
 <div class="container" style="margin-top: 150px; margin-bottom: 80px;">
     <div class="card shadow-sm">
-        <div class="card-header bg-warning text-white">
-            <h4 class="mb-0 fw-bold">Edit Motor: {{ $motor->nama }}</h4>
-        </div>
+     <div class="card-header py-3" style="background-color: #5da898;">
+       <h4 class="mb-0 fw-bold text-white">Edit Motor: {{ $motor->nama }}</h4>
+     </div>
         <div class="card-body p-4">
             
             {{-- Form mengarah ke route update dengan method PUT --}}
@@ -66,7 +66,7 @@
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-secondary">Batal</a>
-                    <button type="submit" class="btn btn-warning text-white px-5">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-teal-fill px-5">Simpan Perubahan</button>
                 </div>
             </form>
         </div>

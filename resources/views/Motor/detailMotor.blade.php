@@ -22,27 +22,20 @@
 
                 <div class="col-md-6 p-5 position-relative">
                     
-                    {{-- === KODE YANG BARU DITAMBAHKAN === --}}
-                    @if(true)
-                        <div class="position-absolute top-0 end-0 m-4 d-flex gap-2" style="z-index: 10;">
-                            
-                            {{-- Tombol Edit --}}
-                            <a href="{{ route('motor.edit', $motor->id) }}" class="btn btn-warning text-white btn-sm px-3 shadow-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                    {{-- Tombol Edit & Hapus --}}
+                    <div class="position-absolute top-0 end-0 m-4 d-flex gap-2" style="z-index: 10;">
+                        <a href="{{ route('motor.edit', $motor->id) }}" class="btn btn-warning text-white btn-sm px-3 shadow-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
 
-                            {{-- Tombol Delete --}}
-                            <form action="{{ route('motor.destroy', $motor->id) }}" method="POST" onsubmit="return confirm('Yakin hapus motor ini?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm px-3 shadow-sm">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </button>
-                            </form>
-
-                        </div>
-                    @endif
-                    {{-- =================================== --}}
+                        <form action="{{ route('motor.destroy', $motor->id) }}" method="POST" onsubmit="return confirm('Yakin hapus motor ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm px-3 shadow-sm">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
 
                     <h5 class="text-muted text-uppercase letter-spacing-1 mt-2">{{ $motor->tipe }}</h5>
                     <h1 class="fw-bold text-dark mb-3">{{ $motor->nama }}</h1>
@@ -82,10 +75,15 @@
                     </div>
 
                     <div class="d-grid gap-2">
+                        {{-- LOGIKA BARU: Tombol Sewa --}}
                         @if($motor->status == 'tersedia')
-                            <a href="#" class="btn btn-teal-fill btn-lg">Sewa Sekarang</a>
+                            {{-- Arahkan ke route peminjaman create --}}
+                            <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
                         @else
-                            <button class="btn btn-secondary btn-lg" disabled>Unit Tidak Tersedia</button>
+                            {{-- Button disabled abu-abu jika status disewa/maintenance --}}
+                            <button class="btn btn-secondary btn-lg text-capitalize" disabled>
+                                {{ $motor->status == 'disewa' ? 'Unit Sedang Disewa' : 'Unit Sedang Maintenance' }}
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -93,19 +91,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .btn-teal-fill {
-        background-color: #20c997; 
-        color: white;
-        border: none;
-    }
-    .btn-teal-fill:hover {
-        background-color: #1aa179;
-        color: white;
-    }
-    .letter-spacing-1 {
-        letter-spacing: 1px;
-    }
-</style>
 @endsection
