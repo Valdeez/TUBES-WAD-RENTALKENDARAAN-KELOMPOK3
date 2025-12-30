@@ -12,18 +12,17 @@ Route::get('/', function () {
 })->name('home');
 Route::middleware(['auth'])->group(function () {
     // punya user atau penyewa
-    Route::get('/pembayaran', [PembayaranController::class, 'create'])->name('pembayaran.create');
-    Route::post('/pembayaran/store', [PembayaranController::class, 'store'])->name('pembayaran.store');
-    Route::get('/history', [PembayaranController::class, 'index'])->name('pembayaran.history');
 });
+Route::get('/pembayaran/{id}', [PembayaranController::class, 'create'])->name('pembayaran.create');
+Route::post('/pembayaran/store', [PembayaranController::class, 'store'])->name('pembayaran.store');
+Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
+Route::delete('/pembayaran/{id}', [PembayaranController::class, 'destroy'])->name('admin.pembayaran.destroy');
 // punya admin
 Route::prefix('admin')->group(function () {
     Route::get('/pembayaran', [PembayaranController::class, 'adminIndex'])->name('admin.pembayaran.index');
     Route::patch('/pembayaran/{id}/verify', [PembayaranController::class, 'verify'])->name('admin.pembayaran.verify');
 
 });
-Route::get('/pembayaran/{id}', [PembayaranController::class, 'create'])->name('pembayaran.create');
-Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
 Route::get('motor', [MotorController::class, 'index'])->name('motor');
 Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
 Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');

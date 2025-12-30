@@ -7,20 +7,27 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ url('/') }}">Beranda</a>
+                    <a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ url('/') }}">Beranda</a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Mobil</a>
+                    <a class="nav-link {{ Request::is('mobil*') ? 'active' : '' }}" href="#">Mobil</a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{route('motor')}}">Motor</a>
+                    <a class="nav-link {{ Route::is('motor.*') ? 'active' : '' }}" href="{{ route('motor') }}">Motor</a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('peminjaman.index') }}">Peminjaman</a>
+                    <a class="nav-link {{ Route::is('peminjaman.*') ? 'active' : '' }}" href="{{ route('peminjaman.index') }}">Peminjaman</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/pembayaran') }}">Pembayaran</a>
-                </li>
+                {{-- @if(Auth::check() && Auth::user()->role == 'admin')  --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('admin.pembayaran.*') ? 'active' : '' }}" href="{{ route('admin.pembayaran.index') }}">
+                            Verifikasi
+                        </a>
+                    </li>
+                {{-- @endif --}}
             </ul>
             <div class="d-flex">
                 <a href="#" class="btn btn-teal-outline me-2">Masuk</a>
