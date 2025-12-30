@@ -107,7 +107,7 @@
                     Proses booking cepat, unit bersih terawat, dan siap menemani <br>
                     liburan maupun perjalanan bisnis Anda kapan saja.
                 </p>
-                <a href="{{route('motor')}}" class="btn btn-teal-fill btn-lg px-4 py-2">Lihat Kendaraan</a>
+                <a href="/" class="btn btn-teal-fill btn-lg px-4 py-2">Lihat Kendaraan</a>
             </div>
 
             <div class="col-md-6 text-center">

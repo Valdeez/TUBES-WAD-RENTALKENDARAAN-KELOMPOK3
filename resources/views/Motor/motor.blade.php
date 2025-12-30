@@ -148,7 +148,14 @@
                         <h3 class="vehicle-name">{{ $motor->nama }}</h3>
                         <span class="vehicle-type">{{ $motor->tipe }}</span>
                         <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-teal-outline btn-block mt-2">Lihat Detail</a>
-                        <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        @if($motor->status == 'tersedia')
+                            <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        @else
+                            {{-- Jika tidak tersedia, tombol jadi abu-abu (secondary) & disabled --}}
+                            <button class="btn btn-secondary btn-block mt-2 text-capitalize" disabled>
+                                {{ $motor->status == 'disewa' ? 'Sedang Disewa' : 'Maintenance' }}
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
