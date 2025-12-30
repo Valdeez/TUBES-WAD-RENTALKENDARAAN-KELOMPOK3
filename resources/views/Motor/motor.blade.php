@@ -6,7 +6,7 @@
     .section-header {
         text-align: center;
         margin-bottom: 50px;
-        margin-top: 150px;
+        margin-top: 120px;
     }
 
     .section-title {
@@ -88,6 +88,34 @@
 
 
 <section class="container mb-5 mt-5">
+   @if(session('success'))
+    <div id="auto-close-alert" class="alert alert-success alert-dismissible fade show shadow" role="alert" 
+         style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 80%; max-width: 800px;">
+        
+        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <script>
+        // Tunggu dokumen selesai dimuat
+        document.addEventListener("DOMContentLoaded", function() {
+            // Cari elemen alert
+            var alertElement = document.getElementById('auto-close-alert');
+            
+            // Jika alert ada
+            if (alertElement) {
+                // Set waktu tunggu 2 detik (2000 milidetik)
+                setTimeout(function() {
+                    // Cari tombol close di dalam alert dan klik otomatis
+                    var closeButton = alertElement.querySelector('.btn-close');
+                    if (closeButton) {
+                        closeButton.click();
+                    }
+                }, 2000); // <-- Ganti angka ini jika ingin lebih lama/cepat
+            }
+        });
+    </script>
+@endif
     <div class="section-header">
         <h2 class="section-title">Daftar Motor</h2>
         <p class="section-subtitle">Tersedia banyak pilihan motor bersih dan nyaman, siap temani semua rute perjalanan kamu</p>
@@ -109,6 +137,7 @@
             </div>
         </div>
     @endif
+
         @foreach ($motors as $motor)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card vehicle-card">
@@ -119,7 +148,14 @@
                         <h3 class="vehicle-name">{{ $motor->nama }}</h3>
                         <span class="vehicle-type">{{ $motor->tipe }}</span>
                         <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-teal-outline btn-block mt-2">Lihat Detail</a>
-                        <a href="#" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        @if($motor->status == 'tersedia')
+                            <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        @else
+                            {{-- Jika tidak tersedia, tombol jadi abu-abu (secondary) & disabled --}}
+                            <button class="btn btn-secondary btn-block mt-2 text-capitalize" disabled>
+                                {{ $motor->status == 'disewa' ? 'Sedang Disewa' : 'Maintenance' }}
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -127,3 +163,4 @@
     </div>
 </section>
 @endsection
+

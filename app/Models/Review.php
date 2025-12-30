@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-    use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'peminjaman_id',
         'rating',
         'comment',
-        'user_id',
-        'kendaraan_id',
     ];
 
     public function user()
@@ -20,9 +19,9 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function product()
+    public function peminjaman()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Peminjaman::class);
     }
 }
 
