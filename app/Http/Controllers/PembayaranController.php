@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PembayaranResource;
 use Illuminate\Support\Facades\Validator;
 
-class PembayaranController extends Controller
+class PembayaranController 
 {
     /**
      * Display a listing of the resource.
@@ -38,7 +38,6 @@ class PembayaranController extends Controller
             ], 422);
         }
 
-       
         $imagePath = $request->file('bukti_bayar')->store('uploads/bukti_bayar', 'public');
 
         $pembayaran = Pembayaran::create([

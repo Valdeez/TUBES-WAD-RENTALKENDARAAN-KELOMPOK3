@@ -8,7 +8,7 @@ use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class MotorController
+class MotorController 
 {
     /**
      * Display a listing of the resource.

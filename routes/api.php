@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\UserController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,6 +24,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('pembayaran', PembayaranController::class)->only([
         'index', 'show', 'store'
     ]);
+
+    Route::apiResource('users', UserController::class)->only(['show', 'update', 'destroy']);
     
     // 2. Route yang HANYA bisa diakses oleh ADMIN (Update & Delete)
     Route::middleware('role:admin')->group(function () {
