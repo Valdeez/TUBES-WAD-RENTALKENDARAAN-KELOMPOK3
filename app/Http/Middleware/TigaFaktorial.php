@@ -22,7 +22,6 @@ class TigaFaktorial
             return response()->json(['message' => 'Akses Ditolak. Anda bukan Administrator.'], 403);
         }
 
-       
         return $next($request); 
     }
 }
