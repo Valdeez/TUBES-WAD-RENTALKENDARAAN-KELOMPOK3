@@ -3,144 +3,178 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
+use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PembayaranResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranController 
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+   public function index()
     {
-        $pembayarans = Pembayaran::latest()->get();
-        return PembayaranResource::collection($pembayarans);
+        $userId = Auth::id() ?? 1;
+        $transaksi = Pembayaran::with(['peminjaman.kendaraan'])
+            ->whereHas('peminjaman', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->latest()
+            ->get();
+
+        return view('pembayaran.history', compact('transaksi'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'nama_pengirim'     => 'required|string|max:255',
-            'metode_pembayaran' => 'required|string',
-            'jumlah_bayar'      => 'required|integer|min:1',
-            'bukti_bayar'       => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+        $validator = Validator::make($request->all(), [
+            'peminjaman_id' => 'required|exists:peminjamans,id',
+            'metode'        => 'required',
+            'jumlah_bayar'  => 'required|numeric|min:1',
+            'bukti'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Tolong di Periksa kembali',
-                'errors' => $validator->errors()
+                'message' => 'Data tidak valid',
+                'errors'  => $validator->errors()
             ], 422);
         }
 
-        $imagePath = $request->file('bukti_bayar')->store('uploads/bukti_bayar', 'public');
+        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+
+        $path = $request->file('bukti')->store('bukti_bayar', 'public');
 
         $pembayaran = Pembayaran::create([
-            'nama_pengirim'     => $request->nama_pengirim,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'jumlah_bayar'      => $request->jumlah_bayar,
-            'bukti_bayar'       => $imagePath, // Simpan alamatnya
-            'status'            => 'pending'
+            'peminjaman_id' => $peminjaman->id,
+            'tanggal_bayar' => now(),
+            'jumlah_bayar'  => $request->jumlah_bayar,
+            'metode'        => $request->metode,
+            'status'        => 'pending',
+            'bukti'         => $path,
         ]);
 
-        return (new PembayaranResource($pembayaran))
-                ->additional(['message' => 'Pembayaran telah berhasil'])
-                ->response()
-                ->setStatusCode(201);
+        // return (new PembayaranResource($pembayaran))
+        //     ->additional(['message' => 'Pembayaran berhasil dibuat'])
+        //     ->response()
+        //     ->setStatusCode(201);
+        return redirect()->route('peminjaman.show', $peminjaman->id)->with('success', 'Pembayaran berhasil dibuat dan sedang diproses.');
     }
 
-    /**
-     * Display the specified resource.
-     */
+    public function create($id)
+    {
+        $peminjaman = Peminjaman::with(['user', 'kendaraan'])->findOrFail($id);
+
+        // if ($peminjaman->user_id !== Auth::id()) {
+        //     abort(403, 'Anda tidak berhak membayar tagihan ini.');
+        // }
+        $totalBayar = $peminjaman->kendaraan->harga_sewa * $peminjaman->durasi;
+
+        return view('Pembayaran.createPembayaran', compact('peminjaman', 'totalBayar'));
+    }
+
     public function show($id)
     {
-        $pembayaran = Pembayaran::find($id);
-        
-        if(!$pembayaran) {
+        $pembayaran = Pembayaran::with('peminjaman')->find($id);
+
+        if (!$pembayaran) {
             return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
         }
-        
+
         return new PembayaranResource($pembayaran);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    
-    public function update(Request $request, $id) 
+    public function update(Request $request, $id)
     {
         $pembayaran = Pembayaran::find($id);
 
-        if (!$pembayaran){
+        if (!$pembayaran) {
             return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
         }
 
-        $validator = Validator::make($request->all(),[
-            'nama_pengirim'     => 'required|string|max:255',
-            'metode_pembayaran' => 'required|string',
-            'jumlah_bayar'      => 'required|integer|min:1',
-            'bukti_bayar'       => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'status'            => 'required|in:pending,lunas,gagal',
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,lunas,gagal',
+            'bukti'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Tolong periksa kembali',
-                'errors' => $validator->errors()
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
             ], 422);
         }
 
-        
-        $dataUpdate = [
-            'nama_pengirim'     => $request->nama_pengirim,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'jumlah_bayar'      => $request->jumlah_bayar,
-            'status'            => $request->status,
-        ];
-
-        
-        if ($request->hasFile('bukti_bayar')) {
-            
-            if ($pembayaran->bukti_bayar) {
-                Storage::disk('public')->delete($pembayaran->bukti_bayar);
-            }
-           
-            $pathBaru = $request->file('bukti_bayar')->store('uploads/bukti_bayar', 'public');
-            $dataUpdate['bukti_bayar'] = $pathBaru;
+        if ($request->hasFile('bukti')) {
+            Storage::disk('public')->delete($pembayaran->bukti);
+            $pembayaran->bukti = $request->file('bukti')
+                ->store('uploads/bukti_bayar', 'public');
         }
 
-        
-        $pembayaran->update($dataUpdate);
+        $pembayaran->status = $request->status;
+        $pembayaran->save();
+
+        if ($request->status === 'lunas') {
+            $peminjaman = $pembayaran->peminjaman;
+
+            if ($peminjaman->totalDibayar() >= $peminjaman->total_tagihan) {
+                $peminjaman->update(['status' => 'selesai']);
+            }
+        }
 
         return (new PembayaranResource($pembayaran))
-                ->additional(['message' => 'Pembayaran berhasil di update'])
-                ->response()
-                ->setStatusCode(200);
+            ->additional(['message' => 'Status pembayaran diperbarui'])
+            ->response()
+            ->setStatusCode(200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-   
     public function destroy($id)
     {
-       $pembayaran = Pembayaran::find($id);
+        $pembayaran = Pembayaran::find($id);
+        $pembayaran = \App\Models\Pembayaran::findOrFail($id);
+        if (!$pembayaran) {
+            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+        }
+        if ($pembayaran->bukti) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($pembayaran->bukti);
+        }
 
-       if (!$pembayaran){
-        return response()->json(['message' => 'pembayaran tidak ditemukan'], 404);
-       }
+        Storage::disk('public')->delete($pembayaran->bukti);
+        $pembayaran->delete();
 
-       if ($pembayaran->bukti_bayar) {
-           Storage::disk('public')->delete($pembayaran->bukti_bayar);
-       }
+        return redirect()->back()->with('success', 'Data berhasil dihapus!');
+    }
+    public function adminIndex()
+    {
+        // Ambil SEMUA data (Pagination 10)
+        $pembayaran = Pembayaran::with(['peminjaman.user', 'peminjaman.kendaraan'])
+                        ->latest()
+                        ->paginate(10); 
 
-       $pembayaran->delete();
+        return view('Pembayaran.adminPembayaran', compact('pembayaran'));
+    }
 
-       return response()->json(['message' => 'Pembayaran berhasil didelete'], 200);
+    // 5. Proses Admin Terima/Tolak
+    public function verify(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:lunas,dibatalkan'
+        ]);
+
+        $pembayaran = Pembayaran::findOrFail($id);
+        
+        // Update Status Pembayaran
+        $pembayaran->update([
+            'status' => $request->status
+        ]);
+
+        // Update Status Peminjaman
+        if($request->status == 'lunas') {
+            $pembayaran->peminjaman->update(['status' => 'disewa']); 
+        } elseif($request->status == 'dibatalkan') {
+            $pembayaran->peminjaman->update(['status' => 'dibatalkan']); 
+            $pembayaran->peminjaman->kendaraan->update(['status' => 'tersedia']);
+        }
+
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui!');
     }
 }
