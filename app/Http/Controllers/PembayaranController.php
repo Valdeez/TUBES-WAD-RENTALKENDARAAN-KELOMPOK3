@@ -10,7 +10,7 @@ use App\Http\Resources\PembayaranResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
-class PembayaranController
+class PembayaranController 
 {
    public function index()
     {
