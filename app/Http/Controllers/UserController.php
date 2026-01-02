@@ -8,68 +8,65 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-
-
 class UserController extends Controller
 {
     /**
-     * READ – Menampilkan data user
+     * READ – Tampilkan profil user login
      */
-    public function show($id)
+    public function show()
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(Auth::id());
 
-        return response()->json([
-            'message' => '',
-            'data' => $user
-        ], 200);
+
+        return view('userProfile.profile', compact('user'));
     }
 
     /**
-     * UPDATE – Mengubah data user
+     * UPDATE – Update profil user login
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(Auth::id());
 
         $validator = Validator::make($request->all(), [
-            'name'   => 'sometimes|required|string|max:255',
-            'email'  => 'sometimes|required|email|unique:users,email,' . $id,
+            'name'   => 'required|string|max:255',
             'no_hp'  => 'nullable|string',
             'alamat' => 'nullable|string',
+            'password' => 'required|min:8',
+            
+
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validasi gagal',
-                'error'   => $validator->errors()
-            ], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $user->update($request->only([
-            'name',
-            'email',
-            'no_hp',
-            'alamat'
-        ]));
+        $user->update([
+            'name'   => $request->name,
+            'no_hp'  => $request->no_hp,
+            'alamat' => $request->alamat,
+            'password' => Hash::make($request->password),
+        ]);
 
-        return response()->json([
-            'message' => 'Data anda berhasil diperbarui',
-            'data' => $user
-        ], 200);
+        return redirect()->back()->with('success', 'Profil berhasil diperbarui');
     }
 
     /**
-     * DELETE – Menghapus data user
+     * DELETE – Hapus akun user login
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(Auth::id());
+
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         $user->delete();
 
-        return response()->json([
-            'message' => 'Akun anda berhasil dihapus'
-        ], 200);
+        return redirect('/register')->with('success', 'Akun berhasil dihapus');
     }
 }

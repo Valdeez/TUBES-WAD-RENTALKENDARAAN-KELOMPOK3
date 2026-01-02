@@ -4,75 +4,86 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+
 class AuthController extends Controller
 {
-    //
+    /* ======================
+    |  TAMPIL HALAMAN
+     ====================== */
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    public function showLogin()
+    {
+        return view('auth.login');
+    }
+
+    /* ======================
+    |  PROSES REGISTER
+     ====================== */
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|string|email|max:255|unique:users',
-            'password'  => 'required|string|min:8',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:8',
             'no_hp'    => 'nullable|string',
             'alamat'   => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Gagal',
-                'error' => $validator->errors()
-            ], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'no_hp'     => $request->no_hp,
-            'alamat'    => $request->alamat,
-            'role'      => 'pelanggan'
-
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'no_hp'    => $request->no_hp,
+            'alamat'   => $request->alamat,
+            'role'     => 'pelanggan'
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Registration Successful',
-            'data' => [
-                'user' => $user,
-                'token' => $token
-            ]
-        ], 201);
+        return redirect('/login')->with('success', 'Registrasi berhasil, silakan login');
     }
+
+    /* ======================
+    |  PROSES LOGIN
+     ====================== */
 
     public function login(Request $request)
     {
+        $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email atau Password salah'
-            ], 401);
+        if (!Auth::attempt($credentials)) {
+            return redirect()->back()->with('error', 'Email atau password salah');
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $request->session()->regenerate();
 
-        return response()->json([
-            'message' => 'Login Berhasil!',
-            'data' => [
-                'user' => $user,
-                'token' => $token
-            ]
-        ], 200);
+        return redirect('/profile');
     }
+
+    /* ======================
+    |  LOGOUT
+     ====================== */
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logout Berhasil!'], 200);
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('success', 'Logout berhasil');
     }
 }

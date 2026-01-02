@@ -7,8 +7,11 @@ use App\Http\Controllers\MotorController;
 use App\Http\Controllers\MobilController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Models\Motor;
 use App\Models\Mobil;
+use App\Models\user;
 
 Route::get('/', function () {
     return view('home');
@@ -81,3 +84,21 @@ Route::post('/review', [ReviewController::class, 'store'])->name('review.store')
 Route::get('/review/{review}/edit', [ReviewController::class, 'edit'])->name('review.edit');
 Route::put('/review/{review}', [ReviewController::class, 'update'])->name('review.update');
 Route::delete('/review/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
+
+// Untuk Pelanggan
+Route::get('/login', fn () => view('auth.login'))->name('login');
+Route::get('/register', fn () => view('auth.register'))->name('register');
+
+Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// user profile
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [UserController::class, 'show']) ->name('profile');
+
+    Route::put('/profile', [UserController::class, 'update']) ->name('profile.update');
+
+    Route::delete('/profile', [UserController::class, 'destroy']) ->name('profile.delete');
+});
+
