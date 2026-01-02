@@ -17,8 +17,10 @@ class AdminUserSeeder extends Seeder
         //
         User::Create([
             'name' => 'AdminRental',
-            'email' => 'Rental@gmail.com',
-            'password' => Hash::make('TigaFaktorial'),
+            'email' => 'admin@gmail.com',
+            'no_hp' => '081234567890',
+            'alamat' => 'Jl. Admin No.1, Kota Admin',
+            'password' => Hash::make('admin12345'),
             'email_verified_at' => now(),
             'role' => 'admin',
         ]);

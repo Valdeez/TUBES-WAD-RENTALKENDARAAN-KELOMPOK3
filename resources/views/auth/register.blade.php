@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f9fafb;
-        }
+@extends('app')
 
+@push('styles')
+    <style>
         .card {
-            width: 350px;
+            width: 500px;
             margin: 100px auto;
             padding: 50px;
             background: #ffffff;
@@ -69,14 +62,10 @@
             text-decoration: none;
             font-weight: bold;
         }
-
-        a:hover {
-            text-decoration: underline;
-        }
     </style>
-</head>
-<body>
+@endpush
 
+@section('content')
 <div class="card">
     <h2>Register</h2>
 
@@ -96,6 +85,4 @@
         Sudah punya akun? <a href="{{ route('login') }}">Login</a>
     </p>
 </div>
-
-</body>
-</html>
+@endsection

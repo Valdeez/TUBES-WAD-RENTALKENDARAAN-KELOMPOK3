@@ -122,7 +122,7 @@
     </div>
 
     <div class="row">
-        @if(true)
+        @if(Auth::check() && Auth::user()->role == 'admin')
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card vehicle-card h-100 border-2 border-dashed d-flex align-items-center justify-content-center" 
                  style="background-color: #f8f9fa; border-style: dashed !important; border-color: #5da898; min-height: 380px; cursor: pointer;"
@@ -136,7 +136,7 @@
                 </div>
             </div>
         </div>
-    @endif
+        @endif
 
         @foreach ($motors as $motor)
             <div class="col-lg-3 col-md-6 mb-4">

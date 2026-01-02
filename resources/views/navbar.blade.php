@@ -17,22 +17,36 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('motor.*') ? 'active' : '' }}" href="{{ route('motor.index') }}">Motor</a>
                 </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {{ Route::is('peminjaman.*') ? 'active' : '' }}" href="{{ route('peminjaman.index') }}">Peminjaman</a>
-                </li>
-                {{-- @if(Auth::check() && Auth::user()->role == 'admin')  --}}
+                @if(Auth::check() && Auth::user()->role == 'pelanggan') 
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('peminjaman.*') ? 'active' : '' }}" href="{{ route('peminjaman.index') }}">Peminjaman</a>
+                    </li>
+                @elseif(Auth::check() && Auth::user()->role == 'admin') 
                     <li class="nav-item">
                         <a class="nav-link {{ Route::is('admin.pembayaran.*') ? 'active' : '' }}" href="{{ route('admin.pembayaran.index') }}">
                             Verifikasi
                         </a>
                     </li>
-                {{-- @endif --}}
+                @endif
             </ul>
-            <div class="d-flex">
-                <a href="#" class="btn btn-teal-outline me-2">Masuk</a>
-                <a href="#" class="btn btn-teal-fill">Daftar</a>
-            </div>
+            @if(Auth::check()) 
+                <a href="{{ route('profile') }}" class="d-flex align-items-center gap-2">
+                    <span class="fw-medium text-dark">
+                        Hi, {{ Auth::user()->name }}
+                    </span>
+                    <div class="rounded-circle d-flex justify-content-center align-items-center text-white" 
+                        style="width: 40px; height: 40px; background-color: #5da898; font-weight: bold; font-size: 20px;">
+                        
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    
+                    </div>
+                </a>
+            @else
+                <div class="d-flex">
+                    <a href="{{ route('login') }}" class="btn btn-teal-outline me-2">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-teal-fill">Daftar</a>
+                </div>
+            @endif
         </div>
     </div>
 </nav>

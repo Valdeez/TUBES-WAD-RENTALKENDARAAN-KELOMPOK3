@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('no_hp')->nullable();
             $table->text('alamat')->nullable();
-            $table->string('role')->default('pelanggan');
+            $table->enum('role', ['admin', 'pelanggan'])->default('pelanggan');
             $table->rememberToken();
             $table->timestamps();
         });

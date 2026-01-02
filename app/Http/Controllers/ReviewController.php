@@ -13,7 +13,7 @@ class ReviewController
     {
         $peminjaman = Peminjaman::with('kendaraan')
             ->where('id', $peminjaman_id)
-            ->where('user_id', auth()->id() ?? 1)
+            ->where('user_id', Auth::id())
             ->where('status', 'Selesai')
             ->firstOrFail();
         
@@ -38,7 +38,7 @@ class ReviewController
         $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
 
         $review = Review::create([
-            'user_id' => auth()->id() ?? 1,
+            'user_id' => Auth::id(),
             'peminjaman_id' => $request->peminjaman_id,
             'rating' => $request->rating,
             'comment' => $request->comment,

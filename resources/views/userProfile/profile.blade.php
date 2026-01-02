@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Profil</title>
+@extends('app')
+
+@push('styles')
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -10,7 +8,7 @@
         }
 
         .card {
-            width: 400px;
+            width: 600px;
             margin: 100px auto;
             padding: 50px;
             background: #ffffff;
@@ -65,9 +63,9 @@
             background: #dc2626;
         }
     </style>
-</head>
-<body>
+@endpush
 
+@section('content')
 <div class="card">
     <h2>Profil Saya</h2>
 
@@ -86,7 +84,7 @@
 
     <form action="{{ route('logout') }}" method="POST" style="margin-top:15px">
         @csrf
-        <button>Logout</button>
+        <button class="btn btn-teal-outline">Logout</button>
     </form>
 
     <!-- TAMBAHAN HAPUS AKUN -->
@@ -98,6 +96,4 @@
     </form>
 
 </div>
-
-</body>
-</html>
+@endsection

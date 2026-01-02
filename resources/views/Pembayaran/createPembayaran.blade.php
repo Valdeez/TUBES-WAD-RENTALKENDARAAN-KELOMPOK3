@@ -130,11 +130,11 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-control" value="{{ $peminjaman->user->name ?? 'Nama User' }}" readonly>
+                                <input type="text" class="form-control" value="{{ $peminjaman->user->name }}" readonly>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nomor Telepon</label>
-                                <input type="text" class="form-control" value="{{ $peminjaman->user->phone }}">
+                                <input type="text" class="form-control" value="{{ $peminjaman->user->no_hp }}">
                             </div>
                         </div>
                     </div>

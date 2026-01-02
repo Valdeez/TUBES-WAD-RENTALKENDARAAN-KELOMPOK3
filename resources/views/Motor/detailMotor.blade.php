@@ -23,6 +23,7 @@
                 <div class="col-md-6 p-5 position-relative">
                     
                     {{-- Tombol Edit & Hapus --}}
+                    @if (Auth::check() && Auth::user()->role == 'admin')    
                     <div class="position-absolute top-0 end-0 m-4 d-flex gap-2" style="z-index: 10;">
                         <a href="{{ route('motor.edit', $motor->id) }}" class="btn btn-warning text-white btn-sm px-3 shadow-sm">
                             <i class="fas fa-edit"></i> Edit
@@ -36,6 +37,7 @@
                             </button>
                         </form>
                     </div>
+                    @endif
 
                     <h5 class="text-muted text-uppercase letter-spacing-1 mt-2">{{ $motor->tipe }}</h5>
                     <h1 class="fw-bold text-dark mb-3">{{ $motor->nama }}</h1>

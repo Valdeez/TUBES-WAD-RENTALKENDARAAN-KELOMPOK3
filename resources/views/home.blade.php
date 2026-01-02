@@ -61,7 +61,7 @@
     .vehicle-img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
     }
 
     .vehicle-info {
@@ -107,7 +107,7 @@
                     Proses booking cepat, unit bersih terawat, dan siap menemani <br>
                     liburan maupun perjalanan bisnis Anda kapan saja.
                 </p>
-                <a href="/" class="btn btn-teal-fill btn-lg px-4 py-2">Lihat Kendaraan</a>
+                <a href="#kendaraan" class="btn btn-teal-fill btn-lg px-4 py-2">Lihat Kendaraan</a>
             </div>
 
             <div class="col-md-6 text-center">
@@ -117,26 +117,26 @@
     </div>
 </section>
 
-<section class="container mb-5">
+<section class="container mb-5" id="kendaraan">
     <div class="row">
         <div class="col-12 text-center">
             <h1 class="section-title">Mobil Kami</h1>
             <p class="hero-desc">Tersedia banyak pilihan mobil bersih dan nyaman, siap temani semua rute perjalanan kamu</p>
         </div>
-        @for ($i = 1; $i <= 4; $i++)
+        @foreach ($mobils as $mobil)
             <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card vehicle-card">
-                <div class="vehicle-img-wrapper">
-                    <img src="https://img.freepik.com/free-photo/white-off-roader-jeep-parking_114579-4007.jpg" class="vehicle-img" alt="Mobil">
-                </div>
-                <div class="vehicle-info">
-                    <h3 class="vehicle-name">Toyota Avanza</h3>
-                    <span class="vehicle-type">MPV Family</span>
-                    <a href="#" class="btn btn-teal-outline btn-block mt-2">Sewa Sekarang</a>
+                <div class="card vehicle-card">
+                    <div class="vehicle-img-wrapper">
+                        <img src="{{ asset('storage/'.$mobil->gambar) }}" class="vehicle-img" alt="{{ $mobil->nama }}">
+                    </div>
+                    <div class="vehicle-info">
+                        <h3 class="vehicle-name">{{ $mobil->nama }}</h3>
+                        <span class="vehicle-type">{{ $mobil->tipe }}</span>
+                        <a href="{{ route('mobil.detail', $mobil->id) }}" class="btn btn-teal-outline btn-block mt-2">Sewa Sekarang</a>
+                    </div>
                 </div>
             </div>
-    </div>
-    @endfor
+        @endforeach
     </div>
 </section>
 
@@ -146,20 +146,20 @@
             <h1 class="section-title">Motor Kami</h1>
             <p class="hero-desc">Tersedia banyak pilihan motor bersih dan nyaman, siap temani semua rute perjalanan kamu</p>
         </div>
-        @for ($i = 1; $i <= 4; $i++)
+        @foreach ($motors as $motor)
             <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card vehicle-card">
-                <div class="vehicle-img-wrapper">
-                    <img src="https://img.freepik.com/free-photo/motorcycle-parking-street_23-2148115663.jpg" class="vehicle-img" alt="Motor">
-                </div>
-                <div class="vehicle-info">
-                    <h3 class="vehicle-name">Honda Vario</h3>
-                    <span class="vehicle-type">Matic 150cc</span>
-                    <a href="#" class="btn btn-teal-outline btn-block mt-2">Sewa Sekarang</a>
+                <div class="card vehicle-card">
+                    <div class="vehicle-img-wrapper">
+                        <img src="{{ asset('storage/'.$motor->gambar) }}" class="vehicle-img" alt="{{ $motor->nama }}">
+                    </div>
+                    <div class="vehicle-info">
+                        <h3 class="vehicle-name">{{ $motor->nama }}</h3>
+                        <span class="vehicle-type">{{ $motor->tipe }}</span>
+                        <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-teal-outline btn-block mt-2">Sewa Sekarang</a>
+                    </div>
                 </div>
             </div>
-    </div>
-    @endfor
+        @endforeach
     </div>
 </section>
 @endsection

@@ -13,15 +13,11 @@ class TigaFaktorial
     public function handle(Request $request, Closure $next): Response
     {
         // buat cek autentikasi token
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Token tidak ditemukan atau tidak valid.'], 401);
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request);
         }
 
-        //  buat check role admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Akses Ditolak. Anda bukan Administrator.'], 403);
-        }
-
-        return $next($request); 
+        // Jika bukan admin, beri error 403 (Forbidden)
+        abort(403, 'Akses ditolak! Anda bukan Admin.');
     }
 }

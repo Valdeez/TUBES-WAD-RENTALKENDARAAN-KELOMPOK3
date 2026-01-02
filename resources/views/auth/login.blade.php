@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f9fafb;
-        }
+@extends('app')
 
+@push('styles')
+    <style>
         .card {
-            width: 350px;
+            width: 500px;
             margin: 110px auto;
             padding: 50px;
             background: #ffffff;
@@ -70,10 +63,6 @@
             font-weight: bold;
         }
 
-        a:hover {
-            text-decoration: underline;
-        }
-
         .error {
             color: #dc2626;
             text-align: center;
@@ -81,9 +70,9 @@
             font-size: 14px;
         }
     </style>
-</head>
-<body>
+@endpush
 
+@section('content')
 <div class="card">
     <h2>Login</h2>
 
@@ -91,7 +80,7 @@
         <p class="error">{{ session('error') }}</p>
     @endif
 
-    <form action="{{ route('login') }}" method="POST">
+    <form action="{{ route('login.store') }}" method="POST">
         @csrf
 
         <input type="email" name="email" placeholder="Email" required>
@@ -104,6 +93,4 @@
         Belum punya akun? <a href="{{ route('register') }}">Register</a>
     </p>
 </div>
-
-</body>
-</html>
+@endsection
