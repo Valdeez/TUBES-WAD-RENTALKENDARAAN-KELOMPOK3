@@ -25,7 +25,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'index', 'show', 'store'
     ]);
 
-    Route::apiResource('users', UserController::class)->only(['show', 'update', 'destroy']);
+    //Route::apiResource('users', UserController::class)->only(['show', 'update', 'destroy']);
     
     // 2. Route yang HANYA bisa diakses oleh ADMIN (Update & Delete)
     Route::middleware('role:admin')->group(function () {
