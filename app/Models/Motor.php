@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use  App\Models\Peminjaman;
+use  App\Models\Review;
 
 class Motor extends Model
 {
@@ -23,5 +24,9 @@ class Motor extends Model
     {  
         return $this->morphMany(Peminjaman::class, 'kendaraan');
     }
-
+    public function reviews()
+    {
+        return Review::whereIn('peminjaman_id', $this->peminjamans()->pluck('id'));
+    }
+    
 }

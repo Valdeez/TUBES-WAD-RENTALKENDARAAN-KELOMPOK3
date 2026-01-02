@@ -1,6 +1,18 @@
 @extends('app')
 
 @section('content')
+<style>
+    .star-css {
+        inline-size: 16px;
+        aspect-ratio: 1;
+        background: #dee2e6;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        display: inline-block;
+    }
+    .star-css.filled {
+        background: #ffc107;
+    }
+</style>
 <section class="py-5" style="background-color: #f5f7fa; margin-top: 100px;">
     <div class="container">
         <a href="{{ route('peminjaman.index') }}" class="btn btn-teal-outline text-decoration-none mb-4">
@@ -10,7 +22,7 @@
         <div class="row g-4">
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
                         @if($peminjaman->kendaraan && $peminjaman->kendaraan->gambar)
                             <img src="{{ asset('storage/' . $peminjaman->kendaraan->gambar) }}" 
                                  alt="Kendaraan" 
@@ -111,7 +123,7 @@
                         </table>
                     </div>
 
-                    <div class="mt-4 d-grid gap-2">
+                    <div class="mt-0 d-grid gap-3">
                         @if(!$peminjaman->pembayaran)
                             <a href="{{ route('pembayaran.create', $peminjaman->id) }}" class="btn btn-teal-fill btn-lg">
                                 Lanjutkan Pembayaran
@@ -128,11 +140,12 @@
                                     Selesaikan Sewa
                                 </button>
                             </form>
-                        @elseif($peminjaman->status == 'selesai')
-                            <button class="btn btn-teal-fill btn-lg">
+                        @elseif($peminjaman->status == 'selesai' && !$peminjaman->review)
+                            <a href="{{ route('review.create', $peminjaman->id) }}" class="btn btn-teal-fill btn-lg">
                                 Tambahkan Review
-                            </button>
+                            </a>
                         @endif
+                        
                         @if ($peminjaman->status == 'dibatalkan' || $peminjaman->status == 'selesai')
                             <form action="{{ route('peminjaman.destroy', $peminjaman->id) }}" method="POST" class="d-grid">
                                 @csrf
@@ -143,8 +156,32 @@
                             </form>
                         @endif
                     </div>
-
                 </div>
+                @if($peminjaman->review)
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Ulasan Anda</h5>
+                            <div class="p-3 bg-light rounded-3" style="border-left: 5px solid #54a692;">
+                                <div class="d-flex justify-content-between">
+                                    <div class="d-flex gap-1 mb-2">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <div class="star-css {{ $i <= $peminjaman->review->rating ? 'filled' : '' }}"></div>
+                                        @endfor
+                                    </div>
+                                    <small class="text-muted">{{ $peminjaman->review->created_at->diffForHumans() }}</small>
+                                </div>
+                                <p class="mb-0 text-secondary">"{{ $peminjaman->review->comment }}"</p>                                        
+                                <div class="d-flex gap-2 mt-3">
+                                    <a href="{{ route('review.edit', $peminjaman->review->id) }}" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem;">Ubah Ulasan</a>
+                                    <form action="{{ route('review.destroy', $peminjaman->review->id) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm px-2 btn-outline-danger" style="font-size: 0.75rem;" onclick="return confirm('Hapus ulasan?')">Hapus Ulasan</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
