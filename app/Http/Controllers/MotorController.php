@@ -84,7 +84,7 @@ class MotorController
         $motor = \App\Models\Motor::find($id);
 
         if (!$motor) {
-            return redirect()->route('motor')->with('error', 'Data tidak ditemukan');
+            return redirect()->route('motor.index')->with('error', 'Data tidak ditemukan');
         }
 
         // 2. Validasi Input

@@ -11,6 +11,30 @@ use App\Http\Controllers\UserController;
 use App\Models\Motor;
 use App\Models\Mobil;
 
+// Untuk Admin
+Route::middleware(['auth', 'admin'])->group(function () {
+    // Motor Admin
+    Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
+    Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
+    Route::get('/motor/{id}/edit', [MotorController::class, 'edit'])->name('motor.edit');
+    Route::put('/motor/{id}', [MotorController::class, 'update'])->name('motor.update');
+    Route::delete('/motor/{id}', [MotorController::class, 'destroy'])->name('motor.destroy');
+
+    // Mobil Admin
+    Route::get('/mobil/create', [MobilController::class, 'create'])->name('mobil.create');
+    Route::post('/mobil', [MobilController::class, 'store'])->name('mobil.store');
+    Route::get('/mobil/{id}/edit', [MobilController::class, 'edit'])->name('mobil.edit');
+    Route::put('/mobil/{id}', [MobilController::class, 'update'])->name('mobil.update');
+    Route::delete('/mobil/{id}', [MobilController::class, 'destroy'])->name('mobil.destroy');
+
+    // Pembayaran Admin
+    Route::prefix('admin')->group(function () {
+        Route::get('/pembayaran', [PembayaranController::class, 'adminIndex'])->name('admin.pembayaran.index');
+        Route::patch('/pembayaran/{id}/verify', [PembayaranController::class, 'verify'])->name('admin.pembayaran.verify');
+        Route::delete('/pembayaran/{id}', [PembayaranController::class, 'destroy'])->name('admin.pembayaran.destroy');
+    });
+});
+
 // Publik
 Route::get('/', function () {
     $motors = Motor::latest()->limit(4)->get();
@@ -58,28 +82,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/review/{review}/edit', [ReviewController::class, 'edit'])->name('review.edit');
     Route::put('/review/{review}', [ReviewController::class, 'update'])->name('review.update');
     Route::delete('/review/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
-});
-
-// Untuk Admin
-Route::middleware(['auth', 'admin'])->group(function () {
-    // Motor Admin
-    Route::get('/motor/create', [MotorController::class, 'create'])->name('motor.create');
-    Route::post('/motor', [MotorController::class, 'store'])->name('motor.store');
-    Route::get('/motor/{id}/edit', [MotorController::class, 'edit'])->name('motor.edit');
-    Route::put('/motor/{id}', [MotorController::class, 'update'])->name('motor.update');
-    Route::delete('/motor/{id}', [MotorController::class, 'destroy'])->name('motor.destroy');
-
-    // Mobil Admin
-    Route::get('/mobil/create', [MobilController::class, 'create'])->name('mobil.create');
-    Route::post('/mobil', [MobilController::class, 'store'])->name('mobil.store');
-    Route::get('/mobil/{id}/edit', [MobilController::class, 'edit'])->name('mobil.edit');
-    Route::put('/mobil/{id}', [MobilController::class, 'update'])->name('mobil.update');
-    Route::delete('/mobil/{id}', [MobilController::class, 'destroy'])->name('mobil.destroy');
-
-    // Pembayaran Admin
-    Route::prefix('admin')->group(function () {
-        Route::get('/pembayaran', [PembayaranController::class, 'adminIndex'])->name('admin.pembayaran.index');
-        Route::patch('/pembayaran/{id}/verify', [PembayaranController::class, 'verify'])->name('admin.pembayaran.verify');
-        Route::delete('/pembayaran/{id}', [PembayaranController::class, 'destroy'])->name('admin.pembayaran.destroy');
-    });
 });

@@ -84,7 +84,7 @@ class MobilController
         $mobil = \App\Models\Mobil::find($id);
 
         if (!$mobil) {
-            return redirect()->route('mobil')->with('error', 'Data tidak ditemukan');
+            return redirect()->route('mobil.index')->with('error', 'Data tidak ditemukan');
         }
 
         // 2. Validasi Input

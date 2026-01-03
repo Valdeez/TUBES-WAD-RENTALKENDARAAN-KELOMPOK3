@@ -34,7 +34,7 @@
                 "{{ $review->comment }}"
             </p>
 
-            {{-- @if(auth()->id() == $review->peminjaman->user_id) --}}
+            @if(Auth::id() == $review->peminjaman->user_id)
                 <div class="d-flex gap-2">
                     <a href="{{ route('review.edit', $review->id) }}" class="btn btn-sm px-2 btn-outline-primary" style="font-size: 0.75rem;">Ubah Ulasan</a>
                     <form action="{{ route('review.destroy', $review->id) }}" method="POST">
@@ -42,7 +42,7 @@
                         <button class="btn btn-sm px-2 btn-outline-danger" style="font-size: 0.75rem;" onclick="return confirm('Hapus ulasan?')">Hapus Ulasan</button>
                     </form>
                 </div>
-            {{-- @endif --}}
+            @endif
         </div>
     </div>
 @endforeach
