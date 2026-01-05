@@ -6,20 +6,20 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
-                    <h4 class="mb-0 fw-bold text-dark">Tambah Motor Baru</h4>
+                    <h4 class="mb-0 fw-bold text-dark">Tambah Mobil Baru</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('motor.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('mobil.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Nama Motor</label>
-                                <input type="text" name="nama" class="form-control" placeholder="Contoh: Honda Vario 150" required>
+                                <label class="form-label">Nama Mobil</label>
+                                <input type="text" name="nama" class="form-control" placeholder="Contoh: Toyota Avanza" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipe / Kategori</label>
-                                <input type="text" name="tipe" class="form-control" placeholder="Contoh: Matic / Sport" required>
+                                <input type="text" name="tipe" class="form-control" placeholder="Contoh: Matic / MPV" required>
                             </div>
                         </div>
 
@@ -49,13 +49,13 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Upload Gambar Motor</label>
+                            <label class="form-label">Upload Gambar Mobil</label>
                             <input type="file" name="gambar" class="form-control" accept="image/*" required>
                             <small class="text-muted">Format: JPG, PNG. Maks: 2MB</small>
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('motor.index') }}" class="btn btn-outline-secondary">Batal</a>
+                            <a href="{{ route('mobil.index') }}" class="btn btn-outline-secondary">Batal</a>
                             <button type="submit" class="btn btn-teal-fill px-5">Simpan Data</button>
                         </div>
                     </form>

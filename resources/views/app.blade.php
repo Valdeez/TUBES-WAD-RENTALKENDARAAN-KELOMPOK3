@@ -14,6 +14,9 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
         }
+        a {
+            text-decoration: none;
+        }
         .navbar { padding: 20px 0; background-color: #ffffff; }
         .navbar-brand { font-weight: 600; font-size: 1.5rem; color: #333; }
         .nav-link { color: #333; font-weight: 400; margin: 0 15px; }

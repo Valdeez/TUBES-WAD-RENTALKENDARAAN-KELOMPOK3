@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mobil;
+use App\Models\Review;
 use Illuminate\Http\Request;
-use App\Http\Resources\MobilResource; 
+use App\Http\Resources\MobilResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\Controller;
 
 class MobilController
 {
@@ -17,26 +17,31 @@ class MobilController
     public function index()
     {
         $mobils = Mobil::latest()->get();
-        return new MobilResource(true, 'List Data Mobil', $mobils);
+        // return new MobilResource(true, 'List Data Mobil', $mobils);
+        return view('Mobil.mobil', compact('mobils'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    public function create()
+    {
+        return view('Mobil.createMobil');
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nama'              => 'required',
-            'plat_nomor'        => 'required|unique:mobils',
+            'plat_nomor'        => 'required|',
             'tipe'              => 'required',
             'tahun_produksi'    => 'required|integer',
             'warna'             => 'required',
             'harga_sewa'        => 'required|numeric',
-            'status'            => 'required|in:tersedia,disewa,maintenance',
-            'gambar'            => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
@@ -50,10 +55,9 @@ class MobilController
             'tahun_produksi'    => $request->tahun_produksi,
             'warna'             => $request->warna,
             'harga_sewa'        => $request->harga_sewa,
-            'status'            => $request->status,
             'gambar'            => $imagePath,
         ]);
-        return new MobilResource(true, 'Data Mobil Berhasil Ditambahkan!', $mobil);
+        return redirect()->route('mobil.index');
     }
 
     /**
@@ -63,52 +67,73 @@ class MobilController
     {
         $mobil = Mobil::find($id);
 
-        if(!$mobil){
+        if (!$mobil) {
             return response()->json(['message' => 'Data Mobil tidak ditemukan!'], 404);
         }
-        return new MobilResource(true, 'Detail Data Mobil', $mobil);
+        $reviews = Review::whereIn('peminjaman_id', $mobil->peminjamans->pluck('id'))->latest()->get();
+
+        return view('Mobil.detailMobil', compact('mobil', 'reviews'));;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $mobil = Mobil::find($id);
 
-        if(!$mobil){
-            return response()->json(['message' => 'Data Mobil tidak ditemukan'], 404);
+        $mobil = \App\Models\Mobil::find($id);
+
+        if (!$mobil) {
+            return redirect()->route('mobil.index')->with('error', 'Data tidak ditemukan');
         }
 
-        $validator = Validator::make($request->all(), [
-            'plat_nomor'    => 'unique:mobils,plat_nomor',
-            'tahun_produksi' => 'integer',
-            'harga_sewa'    => 'numeric',
-            'status'        => 'in:tersedia,disewa,maintenance',
-            'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // 2. Validasi Input
+        $request->validate([
+            'nama' => 'required',
+            'tipe' => 'required',
+            'plat_nomor' => 'required|unique:mobils,plat_nomor,' . $mobil->id,
+            'warna' => 'required',
+            'harga_sewa' => 'required|numeric',
+            'tahun_produksi' => 'nullable|numeric',
+            'status' => 'required',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
+        // 3. Cek apakah user upload gambar baru?
         if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $gambar->storeAs('public/mobils', $gambar->hashName());
-
-            if ($mobil->gambar) {
-                Storage::delete('public/mobils/' . $mobil->gambar);
+            // Hapus gambar lama jika ada (opsional, biar server gak penuh)
+            if ($mobil->gambar && \Illuminate\Support\Facades\Storage::exists('public/' . $mobil->gambar)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $mobil->gambar);
             }
 
-            $mobil->update(array_merge(
-                $request->all(),
-                ['gambar' => $gambar->hashName()]
-            ));
-        } else {
-            $mobil->update($request->all());
+            // Simpan gambar baru
+            $imagePath = $request->file('gambar')->store('mobils', 'public');
+            $mobil->gambar = $imagePath;
         }
 
-        return new MobilResource(true, 'Data Mobil Berhasil Diubah!', $mobil);
+        // 4. Update data lainnya
+        $mobil->nama = $request->nama;
+        $mobil->tipe = $request->tipe;
+        $mobil->plat_nomor = $request->plat_nomor;
+        $mobil->warna = $request->warna;
+        $mobil->tahun_produksi = $request->tahun_produksi;
+        $mobil->harga_sewa = $request->harga_sewa;
+        $mobil->status = $request->status;
+
+        // Simpan ke database
+        $mobil->save();
+        // 5. Redirect kembali ke halaman utama
+        return redirect()->route('mobil.index')->with('success', 'Data mobil berhasil diperbarui!');
+    
+    }
+
+    public function edit($id)
+    {
+        // Cari data mobil berdasarkan ID
+        $mobil = Mobil::find($id);
+
+        // Kirim data $mobil ke view 'edit'
+        return view('Mobil.editMobil', compact('mobil'));
     }
 
     /**
@@ -127,6 +152,6 @@ class MobilController
         }
 
         $mobil->delete();
-        return new MobilResource(true, 'Data Mobil Berhasil Dihapus!', null);
+        return redirect()->route('mobil.index')->with('success', 'Data mobil berhasil dihapus!');
     }
 }

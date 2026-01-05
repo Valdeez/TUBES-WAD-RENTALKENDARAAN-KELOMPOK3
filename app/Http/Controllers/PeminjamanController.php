@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Motor;
 use App\Models\Mobil;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -12,7 +13,7 @@ class PeminjamanController
 {
     public function index()
     {
-        $peminjamans = Peminjaman::where('user_id', 1)->with(['kendaraan', 'pembayaran'])->latest()->get();
+        $peminjamans = Peminjaman::where('user_id', Auth::id())->with(['kendaraan', 'pembayaran'])->latest()->get();
 
         return view('Peminjaman.peminjaman', compact('peminjamans'));
     }
@@ -47,9 +48,8 @@ class PeminjamanController
             ], 422);
         }
 
-        // Simpan peminjaman
         $peminjaman = Peminjaman::create([
-            'user_id'         => auth()->id() ?? 1,
+            'user_id'         => Auth::id(),
             'kendaraan_id'    => $kendaraan->id,
             'kendaraan_type'  => get_class($kendaraan),
             'tanggal_pinjam'  => $request->tanggal_pinjam,
@@ -70,11 +70,7 @@ class PeminjamanController
 
     public function show($id)
     {
-        $peminjaman = Peminjaman::with('kendaraan')->findOrFail($id);
-
-        // if ($peminjaman->user_id !== auth()->id()) {
-        //     abort(403, 'Anda tidak memiliki akses ke data ini.');
-        // }
+        $peminjaman = Peminjaman::with(['kendaraan', 'review'])->findOrFail($id);
 
         return view('Peminjaman.detailPeminjaman', compact('peminjaman'));
     }
@@ -82,6 +78,7 @@ class PeminjamanController
     public function update($id)
     {
         $peminjaman = Peminjaman::with('kendaraan')->findOrFail($id);
+        
         $tanggalKembali = Carbon::now();
 
         $peminjaman->update([

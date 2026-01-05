@@ -117,8 +117,8 @@
     </script>
 @endif
     <div class="section-header">
-        <h2 class="section-title">Daftar Motor</h2>
-        <p class="section-subtitle">Tersedia banyak pilihan motor bersih dan nyaman, siap temani semua rute perjalanan kamu</p>
+        <h2 class="section-title">Daftar Mobil</h2>
+        <p class="section-subtitle">Tersedia banyak pilihan mobil bersih dan nyaman, siap temani semua rute perjalanan kamu</p>
     </div>
 
     <div class="row">
@@ -126,34 +126,34 @@
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card vehicle-card h-100 border-2 border-dashed d-flex align-items-center justify-content-center" 
                  style="background-color: #f8f9fa; border-style: dashed !important; border-color: #5da898; min-height: 380px; cursor: pointer;"
-                 onclick="window.location='{{ route('motor.create') }}'">
+                 onclick="window.location='{{ route('mobil.create') }}'">
                 
                 <div class="text-center">
                     <div style="width: 80px; height: 80px; background: #5da898; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
                         <span style="font-size: 40px; color: #fafafa; line-height: 1;">+</span>
                     </div>
-                    <h5 class="text-muted fw-bold">Tambah Motor</h5>
+                    <h5 class="text-muted fw-bold">Tambah Mobil</h5>
                 </div>
             </div>
         </div>
         @endif
 
-        @foreach ($motors as $motor)
+        @foreach ($mobils as $mobil)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card vehicle-card">
                     <div class="vehicle-img-wrapper">
-                        <img src="{{ asset('storage/'.$motor->gambar) }}" class="vehicle-img" alt="Motor">
+                        <img src="{{ asset('storage/'.$mobil->gambar) }}" class="vehicle-img" alt="Mobil">
                     </div>
                     <div class="vehicle-info">
-                        <h3 class="vehicle-name">{{ $motor->nama }}</h3>
-                        <span class="vehicle-type">{{ $motor->tipe }}</span>
-                        <a href="{{ route('motor.detail', $motor->id) }}" class="btn btn-teal-outline btn-block mt-2">Lihat Detail</a>
-                        @if($motor->status == 'tersedia')
-                            <a href="{{ route('peminjaman.create', [$motor->id, 'motor']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
+                        <h3 class="vehicle-name">{{ $mobil->nama }}</h3>
+                        <span class="vehicle-type">{{ $mobil->tipe }}</span>
+                        <a href="{{ route('mobil.detail', $mobil->id) }}" class="btn btn-teal-outline btn-block mt-2">Lihat Detail</a>
+                        @if($mobil->status == 'tersedia')
+                            <a href="{{ route('peminjaman.create', [$mobil->id, 'mobil']) }}" class="btn btn-teal-fill btn-block mt-2">Sewa Sekarang</a>
                         @else
                             {{-- Jika tidak tersedia, tombol jadi abu-abu (secondary) & disabled --}}
                             <button class="btn btn-secondary btn-block mt-2 text-capitalize" disabled>
-                                {{ $motor->status == 'disewa' ? 'Sedang Disewa' : 'Maintenance' }}
+                                {{ $mobil->status == 'disewa' ? 'Sedang Disewa' : 'Maintenance' }}
                             </button>
                         @endif
                     </div>

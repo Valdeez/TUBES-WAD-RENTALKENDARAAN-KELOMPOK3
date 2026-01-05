@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Motor;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use App\Http\Resources\MotorResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class MotorController
+class MotorController 
 {
     /**
      * Display a listing of the resource.
@@ -56,7 +57,7 @@ class MotorController
             'harga_sewa'        => $request->harga_sewa,
             'gambar'            => $imagePath,
         ]);
-        return redirect()->route('motor');
+        return redirect()->route('motor.index');
     }
 
     /**
@@ -69,7 +70,9 @@ class MotorController
         if (!$motor) {
             return response()->json(['message' => 'Data Motor tidak ditemukan!'], 404);
         }
-        return view('Motor.detailMotor', compact('motor'));;
+        $reviews = Review::whereIn('peminjaman_id', $motor->peminjamans->pluck('id'))->latest()->get();
+
+        return view('Motor.detailMotor', compact('motor', 'reviews'));;
     }
 
     /**
@@ -77,24 +80,23 @@ class MotorController
      */
     public function update(Request $request, $id)
     {
-        // 1. Ambil data motor lama berdasarkan ID
+
         $motor = \App\Models\Motor::find($id);
 
         if (!$motor) {
-            return redirect()->route('motor')->with('error', 'Data tidak ditemukan');
+            return redirect()->route('motor.index')->with('error', 'Data tidak ditemukan');
         }
 
         // 2. Validasi Input
         $request->validate([
             'nama' => 'required',
             'tipe' => 'required',
-            // PERHATIKAN BARIS DI BAWAH INI:
-            // Format: unique:nama_tabel,nama_kolom,id_yang_dikecualikan
             'plat_nomor' => 'required|unique:motors,plat_nomor,' . $motor->id,
             'warna' => 'required',
             'harga_sewa' => 'required|numeric',
             'tahun_produksi' => 'nullable|numeric',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Gambar boleh kosong (nullable)
+            'status' => 'required',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         // 3. Cek apakah user upload gambar baru?
@@ -116,12 +118,13 @@ class MotorController
         $motor->warna = $request->warna;
         $motor->tahun_produksi = $request->tahun_produksi;
         $motor->harga_sewa = $request->harga_sewa;
+        $motor->status = $request->status;
 
         // Simpan ke database
         $motor->save();
 
         // 5. Redirect kembali ke halaman utama
-        return redirect()->route('motor')->with('success', 'Data motor berhasil diperbarui!');
+        return redirect()->route('motor.index')->with('success', 'Data motor berhasil diperbarui!');
     
     }
 
@@ -150,6 +153,6 @@ class MotorController
         }
 
         $motor->delete();
-        return redirect()->route('motor')->with('success', 'Data motor berhasil dihapus!');
+        return redirect()->route('motor.index')->with('success', 'Data motor berhasil dihapus!');
     }
 }

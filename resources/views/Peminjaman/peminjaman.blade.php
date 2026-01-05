@@ -94,10 +94,10 @@
                                                 <a href="{{ route('peminjaman.update', $item->id) }}" class="btn btn-teal-fill px-4 shadow-sm">
                                                     Selesaikan Sewa
                                                 </a>
-                                            @elseif($item->status == 'selesai')
-                                                <button class="btn btn-teal-fill px-4">
+                                            @elseif($item->status == 'selesai' && !$item->review()->exists())
+                                                <a href="{{ route('review.create', $item->id) }}" class="btn btn-teal-fill px-4">
                                                     Tambahkan Review
-                                                </button>
+                                                </a>
                                             @endif
                                         </div>
                                     </div>
